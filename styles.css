@@ -1,1 +1,74 @@
 :root{--bg:#f4f6fb;--panel:#fff;--ink:#081a36;--muted:#52627a;--line:#d8e0ef;--brand:#2f7eea}*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#fff,#eef2fb);color:var(--ink);font-family:Arial,Helvetica,sans-serif}header{background:linear-gradient(135deg,#07111f,#16253d);color:white;padding:20px 22px}header h1{margin:0 0 6px;font-size:28px}header p{margin:0;color:#dbe8ff}nav{display:flex;gap:8px;flex-wrap:wrap;padding:14px 22px;background:white;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}nav button,button{border:1px solid #cbd5e1;background:white;border-radius:9px;padding:10px 14px;cursor:pointer;font-weight:700}nav button.active,button.primary,button:hover{border-color:var(--brand);color:#075ed8}button.primary{background:#eaf2ff}main{max-width:1280px;margin:24px auto;padding:0 18px}.view{display:none;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 6px 18px rgba(12,30,60,.06)}.view.active{display:block}.card{background:#f9fbff;border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0}.formline{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:center}.filters{display:grid;grid-template-columns:minmax(240px,1fr) 220px;gap:10px;margin:12px 0}input,select{border:1px solid #cbd5e1;border-radius:9px;padding:10px;min-height:40px;width:100%}table{width:100%;border-collapse:collapse;margin-top:14px}th,td{border-bottom:1px solid #e3e9f3;padding:11px;text-align:left;vertical-align:middle}th{background:#f5f7fb}.hidden{display:none!important}.adminOnly{display:none}body.isAdmin .adminOnly{display:table-cell}body.isAdmin div.adminOnly{display:block}.danger{color:#c92323}.matchTitle{font-weight:800}.flag{font-size:22px;margin-right:5px}.muted{color:var(--muted);font-size:12px}.chip{display:inline-block;background:#edf4ff;border:1px solid #cfe0ff;border-radius:999px;padding:4px 8px;font-size:12px}.podium{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:10px 0 16px}.podiumCard{background:linear-gradient(135deg,#fff8db,#ffffff);border:1px solid #f1d27a;border-radius:14px;padding:14px}.podiumCard strong{font-size:20px}.teamsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.teamCard{background:white;border:1px solid var(--line);border-radius:14px;padding:14px}.teamCard .bigFlag{font-size:34px}.teamCard h3{margin:4px 0}footer{max-width:1280px;margin:20px auto;color:var(--muted);padding:0 18px}@media(max-width:800px){table{font-size:13px}th,td{padding:8px}header h1{font-size:22px}.filters{grid-template-columns:1fr}nav{position:static}}
+.nextHero{
+  background:linear-gradient(135deg,#fff7e6,#eef6ff);
+  border:1px solid #f1d27a;
+  border-radius:16px;
+  padding:16px;
+  margin:12px 0 18px;
+  display:grid;
+  gap:8px;
+}
+.nextHero.compact{margin-top:6px}
+.nextHero h3{margin:0;font-size:20px}
+.countdown{font-weight:900;font-size:22px;color:#0b5ed7}
+.matchMeta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.metaPill{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  border:1px solid #d8e0ef;
+  background:white;
+  border-radius:999px;
+  padding:5px 9px;
+  font-size:12px;
+  color:#344260;
+}
+.flag{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:30px;
+  height:30px;
+  font-size:24px;
+  margin-right:5px;
+  background:#fff;
+  border:1px solid #e3e9f3;
+  border-radius:50%;
+  box-shadow:0 2px 6px rgba(12,30,60,.08);
+}
+.flagText{
+  font-weight:800;
+}
+.upcomingRow{
+  background:#fffdf3;
+}
+.liveSoon{
+  box-shadow:inset 4px 0 0 #f4b400;
+}
+.highlightChile{
+  background:#fff5f5;
+}
+.vs{
+  color:#52627a;
+  font-weight:700;
+  margin:0 6px;
+}
+.venue{
+  font-size:13px;
+  color:#344260;
+}
+.medal{
+  font-size:20px;
+  margin-right:6px;
+}
+#todayBtn{
+  white-space:nowrap;
+}
+.filters{
+  grid-template-columns:minmax(240px,1fr) 220px 120px;
+}
+@media(max-width:800px){
+  .filters{grid-template-columns:1fr}
+  .flag{width:26px;height:26px;font-size:20px}
+  .countdown{font-size:18px}
+}
