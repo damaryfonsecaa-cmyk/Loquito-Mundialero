@@ -26,7 +26,7 @@ const firebaseConfig = {
   Correo autorizado como administrador.
   Cambia este correo por el tuyo.
 */
-const ADMIN_EMAIL = "damary.fonseca.a@gmail.com";
+const ADMIN_EMAIL = "damaryfonsecaayala@gmail.com";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
