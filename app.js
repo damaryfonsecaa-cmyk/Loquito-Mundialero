@@ -23,8 +23,26 @@ let matches = [];
 let predictions = [];
 let isAdmin = false;
 let showUpcomingOnly = false;
+let predictionDrafts = {};
 
 const $ = id => document.getElementById(id);
+
+function currentBulkParticipantId(){
+  return $("bulkParticipant")?.value || participants[0]?.id || "";
+}
+function draftKey(participantId, matchId, side){
+  return `${participantId}_${matchId}_${side}`;
+}
+function rememberDrafts(){
+  const participantId = currentBulkParticipantId();
+  if(!participantId) return;
+  document.querySelectorAll("[data-bulk-a]").forEach(input => {
+    predictionDrafts[draftKey(participantId, input.dataset.bulkA, "A")] = input.value;
+  });
+  document.querySelectorAll("[data-bulk-b]").forEach(input => {
+    predictionDrafts[draftKey(participantId, input.dataset.bulkB, "B")] = input.value;
+  });
+}
 
 function esc(s){
   return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[c]));
@@ -85,6 +103,7 @@ function lastResult(){
 }
 
 function renderAll(){
+  rememberDrafts();
   renderRanking();
   renderParticipants();
   renderMatches();
@@ -180,6 +199,7 @@ function renderMatches(){
         <input type="number" min="0" value="${m.realA ?? ""}" data-real-a="${m.id}" style="width:70px">
         <input type="number" min="0" value="${m.realB ?? ""}" data-real-b="${m.id}" style="width:70px">
         <button data-save-result="${m.id}">Guardar</button>
+        <button data-clear-result="${m.id}">Limpiar</button>
         <button class="danger" data-del-match="${m.id}">Eliminar</button>
       </td>
     </tr>
@@ -191,6 +211,12 @@ function renderMatches(){
         realA: document.querySelector(`[data-real-a="${id}"]`).value,
         realB: document.querySelector(`[data-real-b="${id}"]`).value
       });
+    };
+  });
+  document.querySelectorAll("[data-clear-result]").forEach(btn => {
+    btn.onclick = async () => {
+      const id = btn.dataset.clearResult;
+      await updateDoc(doc(db,"matches",id), { realA:"", realB:"" });
     };
   });
   document.querySelectorAll("[data-del-match]").forEach(btn => {
@@ -217,18 +243,80 @@ function renderPredictions(){
 function renderBulkPredictions(){
   const body = $("bulkPredictionsBody");
   if(!body) return;
-  const pid = $("bulkParticipant")?.value || participants[0]?.id || "";
-  const existing = Object.fromEntries(predictions.filter(p=>p.participantId===pid).map(p=>[p.matchId,p]));
-  body.innerHTML = matches.slice().sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999)).map(m => {
-    const p = existing[m.id] || {};
-    return `<tr>
-      <td>${m.matchNumber ?? ""}</td>
-      <td><span class="chip">${esc(m.group||"")}</span></td>
-      <td>${matchLabel(m)}</td>
-      <td>${localDate(m.utc)}</td>
-      <td><div class="predScore"><input type="number" min="0" value="${p.goalsA ?? ""}" placeholder="A" data-bulk-a="${m.id}"><span class="smallVs">-</span><input type="number" min="0" value="${p.goalsB ?? ""}" placeholder="B" data-bulk-b="${m.id}"></div></td>
-    </tr>`;
-  }).join("");
+
+  const pid = currentBulkParticipantId();
+  const existing = Object.fromEntries(
+    predictions.filter(p => p.participantId === pid).map(p => [p.matchId, p])
+  );
+
+  body.innerHTML = matches.slice()
+    .sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999))
+    .map(m => {
+      const p = existing[m.id] || {};
+      const valA = predictionDrafts[draftKey(pid,m.id,"A")] ?? p.goalsA ?? "";
+      const valB = predictionDrafts[draftKey(pid,m.id,"B")] ?? p.goalsB ?? "";
+
+      return `<tr>
+        <td>${m.matchNumber ?? ""}</td>
+        <td><span class="chip">${esc(m.group||"")}</span></td>
+        <td>${matchLabel(m)}</td>
+        <td>${localDate(m.utc)}</td>
+        <td>
+          <div class="predScore">
+            <input type="number" min="0" value="${valA}" placeholder="A" data-bulk-a="${m.id}">
+            <span class="smallVs">-</span>
+            <input type="number" min="0" value="${valB}" placeholder="B" data-bulk-b="${m.id}">
+          </div>
+        </td>
+        <td>
+          <button type="button" class="rowSaveBtn" data-save-pred="${m.id}">Guardar</button>
+          <span class="savedHint" data-saved-hint="${m.id}"></span>
+        </td>
+      </tr>`;
+    }).join("");
+
+  document.querySelectorAll("[data-bulk-a]").forEach(input => {
+    input.addEventListener("input", () => {
+      predictionDrafts[draftKey(pid, input.dataset.bulkA, "A")] = input.value;
+    });
+  });
+  document.querySelectorAll("[data-bulk-b]").forEach(input => {
+    input.addEventListener("input", () => {
+      predictionDrafts[draftKey(pid, input.dataset.bulkB, "B")] = input.value;
+    });
+  });
+
+  document.querySelectorAll("[data-save-pred]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      if(!isAdmin) return alert("Solo admin.");
+
+      const participantId = currentBulkParticipantId();
+      const matchId = btn.dataset.savePred;
+      const a = document.querySelector(`[data-bulk-a="${matchId}"]`)?.value.trim() ?? "";
+      const b = document.querySelector(`[data-bulk-b="${matchId}"]`)?.value.trim() ?? "";
+
+      if(a === "" || b === ""){
+        return alert("Completa ambos marcadores antes de guardar esta apuesta.");
+      }
+
+      predictionDrafts[draftKey(participantId,matchId,"A")] = a;
+      predictionDrafts[draftKey(participantId,matchId,"B")] = b;
+
+      await setDoc(doc(db,"predictions",`${participantId}_${matchId}`), {
+        participantId,
+        matchId,
+        goalsA:a,
+        goalsB:b,
+        updatedAt:serverTimestamp()
+      });
+
+      const hint = document.querySelector(`[data-saved-hint="${matchId}"]`);
+      if(hint){
+        hint.textContent = "✓ guardado";
+        setTimeout(() => hint.textContent = "", 1800);
+      }
+    });
+  });
 }
 function renderTeams(){
   const teams = {};
@@ -311,7 +399,7 @@ document.querySelectorAll("nav button").forEach(btn => {
 
 $("matchSearch")?.addEventListener("input", renderMatches);
 $("phaseFilter")?.addEventListener("change", renderMatches);
-$("bulkParticipant")?.addEventListener("change", renderBulkPredictions);
+$("bulkParticipant")?.addEventListener("change", () => { rememberDrafts(); renderBulkPredictions(); });
 $("viewParticipant")?.addEventListener("change", renderPredictions);
 $("upcomingBtn")?.addEventListener("click", () => { showUpcomingOnly = !showUpcomingOnly; renderMatches(); });
 
@@ -335,18 +423,36 @@ $("seedScheduleBtn")?.addEventListener("click", async () => {
 });
 $("saveAllPredictionsBtn")?.addEventListener("click", async () => {
   if(!isAdmin) return alert("Solo admin.");
-  const participantId = $("bulkParticipant")?.value;
+
+  const participantId = currentBulkParticipantId();
   if(!participantId) return alert("Primero agrega o selecciona un participante.");
-  let saved = 0;
+
+  const rowsToSave = [];
   for(const m of matches){
-    const a = document.querySelector(`[data-bulk-a="${m.id}"]`)?.value;
-    const b = document.querySelector(`[data-bulk-b="${m.id}"]`)?.value;
+    const a = document.querySelector(`[data-bulk-a="${m.id}"]`)?.value.trim() ?? "";
+    const b = document.querySelector(`[data-bulk-b="${m.id}"]`)?.value.trim() ?? "";
+
+    predictionDrafts[draftKey(participantId,m.id,"A")] = a;
+    predictionDrafts[draftKey(participantId,m.id,"B")] = b;
+
     if(a !== "" && b !== ""){
-      await setDoc(doc(db,"predictions",`${participantId}_${m.id}`), {participantId, matchId:m.id, goalsA:a, goalsB:b, updatedAt:serverTimestamp()});
-      saved++;
+      rowsToSave.push({participantId, matchId:m.id, goalsA:a, goalsB:b});
     }
   }
-  alert(`Apuestas guardadas: ${saved}`);
+
+  if(rowsToSave.length === 0) return alert("No hay apuestas completas para guardar.");
+
+  await Promise.all(rowsToSave.map(r =>
+    setDoc(doc(db,"predictions",`${r.participantId}_${r.matchId}`), {
+      participantId:r.participantId,
+      matchId:r.matchId,
+      goalsA:r.goalsA,
+      goalsB:r.goalsB,
+      updatedAt:serverTimestamp()
+    })
+  ));
+
+  alert(`Apuestas guardadas: ${rowsToSave.length}.`);
 });
 $("loginBtn")?.addEventListener("click", async () => {
   try{

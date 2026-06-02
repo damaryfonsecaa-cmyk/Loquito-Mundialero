@@ -69,23 +69,8 @@ footer{max-width:1280px;margin:20px auto;color:var(--muted);padding:0 18px}
 }
 
 .rowSaveBtn{
-  padding:7px 10px;
-  font-size:12px;
-  white-space:nowrap;
-}
-.savedHint{
-  color:#0a7a2f;
-  font-size:12px;
-  font-weight:800;
-  min-width:70px;
-}
-.predScore{
-  flex-wrap:wrap;
-}
-
-.rowSaveBtn{
   display:inline-block;
-  min-width:82px;
+  min-width:86px;
   padding:8px 10px;
   font-size:12px;
   border-color:#2f7eea;
@@ -98,6 +83,9 @@ footer{max-width:1280px;margin:20px auto;color:var(--muted);padding:0 18px}
   color:#0a7a2f;
   font-size:12px;
   font-weight:800;
+}
+.predScore{
+  flex-wrap:wrap;
 }
 .predictionsListWrap{
   overflow:auto;
