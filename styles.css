@@ -72,3 +72,62 @@
   .flag{width:26px;height:26px;font-size:20px}
   .countdown{font-size:18px}
 }
+
+.flagImg{
+  width:30px;
+  height:22px;
+  object-fit:cover;
+  border-radius:4px;
+  border:1px solid #d8e0ef;
+  box-shadow:0 2px 6px rgba(12,30,60,.12);
+  vertical-align:middle;
+  margin-right:6px;
+  background:white;
+}
+.flagFallback{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:30px;
+  height:22px;
+  padding:0 4px;
+  border-radius:4px;
+  border:1px solid #d8e0ef;
+  background:white;
+  font-size:11px;
+  font-weight:900;
+  margin-right:6px;
+}
+.predScore{
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+.predScore input{
+  width:64px;
+  min-height:36px;
+  text-align:center;
+}
+.predictionsListWrap{
+  max-height:65vh;
+  overflow:auto;
+  border:1px solid #e3e9f3;
+  border-radius:12px;
+  background:white;
+}
+.predictionsListWrap table{
+  margin-top:0;
+}
+.predictionsListWrap thead th{
+  position:sticky;
+  top:0;
+  z-index:2;
+}
+.smallVs{
+  font-weight:900;
+  color:#52627a;
+}
+@media(max-width:800px){
+  .flagImg{width:26px;height:19px}
+  .predScore input{width:52px}
+}

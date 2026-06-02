@@ -14,7 +14,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Anfitrión: abre el Mundial 2026 en Ciudad de México.",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "mx",
+    "flagCodeB": "za"
   },
   {
     "id": "match002",
@@ -31,7 +33,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "kr",
+    "flagCodeB": "cz"
   },
   {
     "id": "match003",
@@ -48,7 +52,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Anfitrión: debuta en Toronto.",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "ca",
+    "flagCodeB": "ba"
   },
   {
     "id": "match004",
@@ -65,7 +71,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Anfitrión: debuta en Los Angeles.",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "us",
+    "flagCodeB": "py"
   },
   {
     "id": "match005",
@@ -82,7 +90,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "qa",
+    "flagCodeB": "ch"
   },
   {
     "id": "match006",
@@ -99,7 +109,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Máximo campeón histórico del Mundial masculino.",
     "noteB": "Semifinalista en Qatar 2022.",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "br",
+    "flagCodeB": "ma"
   },
   {
     "id": "match007",
@@ -116,7 +128,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "Grupo exigente junto a Brasil y Marruecos.",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "ht",
+    "flagCodeB": "gb-sct"
   },
   {
     "id": "match008",
@@ -133,7 +147,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "au",
+    "flagCodeB": "tr"
   },
   {
     "id": "match009",
@@ -150,7 +166,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Selección tetracampeona mundial.",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "de",
+    "flagCodeB": "cw"
   },
   {
     "id": "match010",
@@ -167,7 +185,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "nl",
+    "flagCodeB": "jp"
   },
   {
     "id": "match011",
@@ -184,7 +204,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "ci",
+    "flagCodeB": "ec"
   },
   {
     "id": "match012",
@@ -201,7 +223,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "se",
+    "flagCodeB": "tn"
   },
   {
     "id": "match013",
@@ -218,7 +242,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Campeón mundial 2010.",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "es",
+    "flagCodeB": "cv"
   },
   {
     "id": "match014",
@@ -235,7 +261,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "be",
+    "flagCodeB": "eg"
   },
   {
     "id": "match015",
@@ -252,7 +280,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "Bicampeón mundial.",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "sa",
+    "flagCodeB": "uy"
   },
   {
     "id": "match016",
@@ -269,7 +299,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "ir",
+    "flagCodeB": "nz"
   },
   {
     "id": "match017",
@@ -286,7 +318,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Finalista de Qatar 2022.",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "fr",
+    "flagCodeB": "sn"
   },
   {
     "id": "match018",
@@ -303,7 +337,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "iq",
+    "flagCodeB": "no"
   },
   {
     "id": "match019",
@@ -320,7 +356,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Campeón vigente de Qatar 2022.",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "ar",
+    "flagCodeB": "dz"
   },
   {
     "id": "match020",
@@ -337,7 +375,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "at",
+    "flagCodeB": "jo"
   },
   {
     "id": "match021",
@@ -354,7 +394,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "pt",
+    "flagCodeB": "cd"
   },
   {
     "id": "match022",
@@ -371,7 +413,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Campeón mundial 1966.",
     "noteB": "Finalista 2018 y tercero en 2022.",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "gb-eng",
+    "flagCodeB": "hr"
   },
   {
     "id": "match023",
@@ -388,7 +432,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "gh",
+    "flagCodeB": "pa"
   },
   {
     "id": "match024",
@@ -405,7 +451,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "uz",
+    "flagCodeB": "co"
   },
   {
     "id": "match025",
@@ -422,7 +470,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "cz",
+    "flagCodeB": "za"
   },
   {
     "id": "match026",
@@ -439,7 +489,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "ch",
+    "flagCodeB": "ba"
   },
   {
     "id": "match027",
@@ -456,7 +508,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Anfitrión: debuta en Toronto.",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "ca",
+    "flagCodeB": "qa"
   },
   {
     "id": "match028",
@@ -473,7 +527,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Anfitrión: abre el Mundial 2026 en Ciudad de México.",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "mx",
+    "flagCodeB": "kr"
   },
   {
     "id": "match029",
@@ -490,7 +546,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Anfitrión: debuta en Los Angeles.",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "us",
+    "flagCodeB": "au"
   },
   {
     "id": "match030",
@@ -507,7 +565,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Grupo exigente junto a Brasil y Marruecos.",
     "noteB": "Semifinalista en Qatar 2022.",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "gb-sct",
+    "flagCodeB": "ma"
   },
   {
     "id": "match031",
@@ -524,7 +584,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Máximo campeón histórico del Mundial masculino.",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "br",
+    "flagCodeB": "ht"
   },
   {
     "id": "match032",
@@ -541,7 +603,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "tr",
+    "flagCodeB": "py"
   },
   {
     "id": "match033",
@@ -558,7 +622,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "nl",
+    "flagCodeB": "se"
   },
   {
     "id": "match034",
@@ -575,7 +641,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Selección tetracampeona mundial.",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "de",
+    "flagCodeB": "ci"
   },
   {
     "id": "match035",
@@ -592,7 +660,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "ec",
+    "flagCodeB": "cw"
   },
   {
     "id": "match036",
@@ -609,7 +679,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "tn",
+    "flagCodeB": "jp"
   },
   {
     "id": "match037",
@@ -626,7 +698,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Campeón mundial 2010.",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "es",
+    "flagCodeB": "sa"
   },
   {
     "id": "match038",
@@ -643,7 +717,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "be",
+    "flagCodeB": "ir"
   },
   {
     "id": "match039",
@@ -660,7 +736,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Bicampeón mundial.",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "uy",
+    "flagCodeB": "cv"
   },
   {
     "id": "match040",
@@ -677,7 +755,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "nz",
+    "flagCodeB": "eg"
   },
   {
     "id": "match041",
@@ -694,7 +774,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Campeón vigente de Qatar 2022.",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "ar",
+    "flagCodeB": "at"
   },
   {
     "id": "match042",
@@ -711,7 +793,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Finalista de Qatar 2022.",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "fr",
+    "flagCodeB": "iq"
   },
   {
     "id": "match043",
@@ -728,7 +812,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "no",
+    "flagCodeB": "sn"
   },
   {
     "id": "match044",
@@ -745,7 +831,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "jo",
+    "flagCodeB": "dz"
   },
   {
     "id": "match045",
@@ -762,7 +850,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "pt",
+    "flagCodeB": "uz"
   },
   {
     "id": "match046",
@@ -779,7 +869,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Campeón mundial 1966.",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "gb-eng",
+    "flagCodeB": "gh"
   },
   {
     "id": "match047",
@@ -796,7 +888,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "Finalista 2018 y tercero en 2022.",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "pa",
+    "flagCodeB": "hr"
   },
   {
     "id": "match048",
@@ -813,7 +907,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "co",
+    "flagCodeB": "cd"
   },
   {
     "id": "match049",
@@ -830,7 +926,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "Anfitrión: debuta en Toronto.",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "ch",
+    "flagCodeB": "ca"
   },
   {
     "id": "match050",
@@ -847,7 +945,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "ba",
+    "flagCodeB": "qa"
   },
   {
     "id": "match051",
@@ -864,7 +964,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Semifinalista en Qatar 2022.",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "ma",
+    "flagCodeB": "ht"
   },
   {
     "id": "match052",
@@ -881,7 +983,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Grupo exigente junto a Brasil y Marruecos.",
     "noteB": "Máximo campeón histórico del Mundial masculino.",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "gb-sct",
+    "flagCodeB": "br"
   },
   {
     "id": "match053",
@@ -898,7 +1002,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "za",
+    "flagCodeB": "kr"
   },
   {
     "id": "match054",
@@ -915,7 +1021,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "Anfitrión: abre el Mundial 2026 en Ciudad de México.",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "cz",
+    "flagCodeB": "mx"
   },
   {
     "id": "match055",
@@ -932,7 +1040,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "cw",
+    "flagCodeB": "ci"
   },
   {
     "id": "match056",
@@ -949,7 +1059,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "Selección tetracampeona mundial.",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "ec",
+    "flagCodeB": "de"
   },
   {
     "id": "match057",
@@ -966,7 +1078,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "tn",
+    "flagCodeB": "nl"
   },
   {
     "id": "match058",
@@ -983,7 +1097,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "jp",
+    "flagCodeB": "se"
   },
   {
     "id": "match059",
@@ -1000,7 +1116,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "Anfitrión: debuta en Los Angeles.",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "tr",
+    "flagCodeB": "us"
   },
   {
     "id": "match060",
@@ -1017,7 +1135,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "py",
+    "flagCodeB": "au"
   },
   {
     "id": "match061",
@@ -1034,7 +1154,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "Finalista de Qatar 2022.",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "no",
+    "flagCodeB": "fr"
   },
   {
     "id": "match062",
@@ -1051,7 +1173,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "sn",
+    "flagCodeB": "iq"
   },
   {
     "id": "match063",
@@ -1068,7 +1192,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "cv",
+    "flagCodeB": "sa"
   },
   {
     "id": "match064",
@@ -1085,7 +1211,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Bicampeón mundial.",
     "noteB": "Campeón mundial 2010.",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "uy",
+    "flagCodeB": "es"
   },
   {
     "id": "match065",
@@ -1102,7 +1230,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "nz",
+    "flagCodeB": "be"
   },
   {
     "id": "match066",
@@ -1119,7 +1249,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "eg",
+    "flagCodeB": "ir"
   },
   {
     "id": "match067",
@@ -1136,7 +1268,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "Campeón mundial 1966.",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "pa",
+    "flagCodeB": "gb-eng"
   },
   {
     "id": "match068",
@@ -1153,7 +1287,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "Finalista 2018 y tercero en 2022.",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "hr",
+    "flagCodeB": "gh"
   },
   {
     "id": "match069",
@@ -1170,7 +1306,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "co",
+    "flagCodeB": "pt"
   },
   {
     "id": "match070",
@@ -1187,7 +1325,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "cd",
+    "flagCodeB": "uz"
   },
   {
     "id": "match071",
@@ -1204,7 +1344,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "dz",
+    "flagCodeB": "at"
   },
   {
     "id": "match072",
@@ -1221,7 +1363,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "Campeón vigente de Qatar 2022.",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "jo",
+    "flagCodeB": "ar"
   },
   {
     "id": "match073",
@@ -1238,7 +1382,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match074",
@@ -1255,7 +1401,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match075",
@@ -1272,7 +1420,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match076",
@@ -1289,7 +1439,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match077",
@@ -1306,7 +1458,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match078",
@@ -1323,7 +1477,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match079",
@@ -1340,7 +1496,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match080",
@@ -1357,7 +1515,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match081",
@@ -1374,7 +1534,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match082",
@@ -1391,7 +1553,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match083",
@@ -1408,7 +1572,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match084",
@@ -1425,7 +1591,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match085",
@@ -1442,7 +1610,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match086",
@@ -1459,7 +1629,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match087",
@@ -1476,7 +1648,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match088",
@@ -1493,7 +1667,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match089",
@@ -1510,7 +1686,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match090",
@@ -1527,7 +1705,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match091",
@@ -1544,7 +1724,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match092",
@@ -1561,7 +1743,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match093",
@@ -1578,7 +1762,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match094",
@@ -1595,7 +1781,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match095",
@@ -1612,7 +1800,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match096",
@@ -1629,7 +1819,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match097",
@@ -1646,7 +1838,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match098",
@@ -1663,7 +1857,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match099",
@@ -1680,7 +1876,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match100",
@@ -1697,7 +1895,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match101",
@@ -1714,7 +1914,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match102",
@@ -1731,7 +1933,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match103",
@@ -1748,7 +1952,9 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   },
   {
     "id": "match104",
@@ -1765,6 +1971,8 @@ export const OFFICIAL_MATCHES = [
     "noteA": "",
     "noteB": "",
     "realA": "",
-    "realB": ""
+    "realB": "",
+    "flagCodeA": "",
+    "flagCodeB": ""
   }
 ];
