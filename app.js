@@ -139,11 +139,11 @@ function renderTeams(){
   }));
   $("teamsGrid").innerHTML=Object.values(teams).sort((a,b)=>a.name.localeCompare(b.name)).map(t=>`<div class="teamCard"><div class="bigFlag">${flagImg(t.flagCode,t.name)}</div><h3>${esc(t.name)}</h3><div class="muted">${t.games} partidos cargados</div><p>${esc(t.fact||"Participante del Mundial 2026.")}</p></div>`).join("");
 }
-$("addParticipantBtn").onclick=async()=>{if(!isAdmin)return alert("Solo admin.");let name=$("participantName").value.trim();if(name){await addDoc(collection(db,"participants"),{name,createdAt:serverTimestamp()});$("participantName").value=""}};
-$("seedScheduleBtn").onclick=async()=>{if(!isAdmin)return alert("Solo admin.");if(!confirm("¿Cargar/actualizar los 104 partidos? No borra participantes ni predicciones."))return;for(const m of OFFICIAL_MATCHES){let ref=doc(db,"matches",m.id), old=await getDoc(ref), keep=old.exists()?{realA:old.data().realA??"",realB:old.data().realB??""}:{};await setDoc(ref,{...m,...keep,updatedAt:serverTimestamp()})}alert("Calendario cargado con chiminuchina ✅")};
-$("savePredictionBtn").onclick=async()=>{if(!isAdmin)return alert("Solo admin.");let participantId=$("predParticipant").value,matchId=$("predMatch").value,goalsA=$("predA").value,goalsB=$("predB").value;if(!participantId||!matchId||goalsA===""||goalsB==="")return alert("Faltan datos.");await setDoc(doc(db,"predictions",`${participantId}_${matchId}`),{participantId,matchId,goalsA,goalsB,updatedAt:serverTimestamp()});$("predA").value=$("predB").value=""};
+$("addParticipantBtn") && ($("addParticipantBtn").onclick=async()=>{if(!isAdmin)return alert("Solo admin.");let name=$("participantName").value.trim();if(name){await addDoc(collection(db,"participants"),{name,createdAt:serverTimestamp()});$("participantName").value=""}});
+$("seedScheduleBtn") && ($("seedScheduleBtn").onclick=async()=>{if(!isAdmin)return alert("Solo admin.");if(!confirm("¿Cargar/actualizar los 104 partidos? No borra participantes ni predicciones."))return;for(const m of OFFICIAL_MATCHES){let ref=doc(db,"matches",m.id), old=await getDoc(ref), keep=old.exists()?{realA:old.data().realA??"",realB:old.data().realB??""}:{};await setDoc(ref,{...m,...keep,updatedAt:serverTimestamp()})}alert("Calendario cargado con chiminuchina ✅")});
+$("savePredictionBtn") && ($("savePredictionBtn").onclick=async()=>{if(!isAdmin)return alert("Solo admin.");let participantId=$("predParticipant").value,matchId=$("predMatch").value,goalsA=$("predA").value,goalsB=$("predB").value;if(!participantId||!matchId||goalsA===""||goalsB==="")return alert("Faltan datos.");await setDoc(doc(db,"predictions",`${participantId}_${matchId}`),{participantId,matchId,goalsA,goalsB,updatedAt:serverTimestamp()});$("predA").value=$("predB").value=""});
 
-$("saveAllPredictionsBtn").onclick=async()=>{
+$("saveAllPredictionsBtn") && ($("saveAllPredictionsBtn").onclick=async()=>{
   if(!isAdmin) return alert("Solo admin.");
   const participantId = $("bulkParticipant")?.value;
   if(!participantId) return alert("Primero agrega o selecciona un participante.");
@@ -157,8 +157,8 @@ $("saveAllPredictionsBtn").onclick=async()=>{
     }
   }
   alert(`Apuestas guardadas: ${saved}`);
-};
-$("loginBtn").onclick=async()=>{try{await signInWithEmailAndPassword(auth,$("email").value.trim(),$("password").value)}catch(e){alert("No se pudo iniciar sesión: "+e.message)}};$("logoutBtn").onclick=()=>signOut(auth);
+});
+$("loginBtn") && ($("loginBtn").onclick=async()=>{try{await signInWithEmailAndPassword(auth,$("email").value.trim(),$("password").value)}catch(e){alert("No se pudo iniciar sesión: "+e.message)}});$("logoutBtn") && ($("logoutBtn").onclick=()=>signOut(auth));
 onAuthStateChanged(auth,user=>{isAdmin=!!user&&user.email===ADMIN_EMAIL;document.body.classList.toggle("isAdmin",isAdmin);$("loginBox").classList.toggle("hidden",!!user);$("adminBox").classList.toggle("hidden",!user);$("adminEmail").textContent=user?.email||"";if(user&&!isAdmin)alert("Este correo no está autorizado como administrador.")});
 onSnapshot(query(collection(db,"participants"),orderBy("createdAt","asc")),s=>{participants=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()});
 onSnapshot(query(collection(db,"matches"),orderBy("matchNumber","asc")),s=>{matches=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()});
