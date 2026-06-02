@@ -103,6 +103,19 @@ function renderNextMatch(){
   if($("nextMatchHero")) $("nextMatchHero").innerHTML = nextHtml + infoHtml;
   if($("nextMatchBox")) $("nextMatchBox").innerHTML = nextHtml;
 }
+
+function renderAll(){
+  renderParticipants();
+  renderMatches();
+  renderPredictions();
+  renderRanking();
+  fillSelects();
+  renderTeams();
+  fillPhaseFilter();
+  renderNextMatch();
+  renderBulkPredictions();
+}
+
 function renderParticipants(){$("participantsBody").innerHTML=participants.map(p=>`<tr><td>${esc(p.name)}</td><td>${stat(p.id).count}</td><td class="adminOnly"><button class="danger" data-del-participant="${p.id}">Eliminar</button></td></tr>`).join("");document.querySelectorAll("[data-del-participant]").forEach(b=>b.onclick=async()=>{if(isAdmin&&confirm("¿Eliminar participante?"))await deleteDoc(doc(db,"participants",b.dataset.delParticipant))})}
 function fillPhaseFilter(){let cur=$("phaseFilter").value, phases=[...new Set(matches.map(m=>m.group).filter(Boolean))];$("phaseFilter").innerHTML=`<option value="">Todas las fases</option>`+phases.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join("");$("phaseFilter").value=cur}
 function filteredMatches(){let q=($("matchSearch")?.value||"").toLowerCase(), ph=$("phaseFilter")?.value||"";return matches.filter(m=>(!q||`${m.group} ${m.teamA} ${m.teamB} ${m.venue}`.toLowerCase().includes(q))&&(!ph||m.group===ph)&&(!window.showUpcomingOnly || (m.utc && new Date(m.utc)>=new Date()))).sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999))}
@@ -246,6 +259,6 @@ $("downloadJsonBtn") && ($("downloadJsonBtn").onclick=downloadFullJson);
 
 $("loginBtn") && ($("loginBtn").onclick=async()=>{try{await signInWithEmailAndPassword(auth,$("email").value.trim(),$("password").value)}catch(e){alert("No se pudo iniciar sesión: "+e.message)}});$("logoutBtn") && ($("logoutBtn").onclick=()=>signOut(auth));
 onAuthStateChanged(auth,user=>{isAdmin=!!user&&user.email===ADMIN_EMAIL;document.body.classList.toggle("isAdmin",isAdmin);$("loginBox").classList.toggle("hidden",!!user);$("adminBox").classList.toggle("hidden",!user);$("adminEmail").textContent=user?.email||"";if(user&&!isAdmin)alert("Este correo no está autorizado como administrador.")});
-onSnapshot(query(collection(db,"participants"),orderBy("createdAt","asc")),s=>{participants=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()});
-onSnapshot(query(collection(db,"matches"),orderBy("matchNumber","asc")),s=>{matches=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()});
-onSnapshot(collection(db,"predictions"),s=>{predictions=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()});
+onSnapshot(query(collection(db,"participants"),orderBy("createdAt","asc")),s=>{participants=s.docs.map(d=>({id:d.id,...d.data()}));if(typeof renderAll==="function") renderAll()});
+onSnapshot(query(collection(db,"matches"),orderBy("matchNumber","asc")),s=>{matches=s.docs.map(d=>({id:d.id,...d.data()}));if(typeof renderAll==="function") renderAll()});
+onSnapshot(collection(db,"predictions"),s=>{predictions=s.docs.map(d=>({id:d.id,...d.data()}));if(typeof renderAll==="function") renderAll()});
