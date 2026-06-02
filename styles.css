@@ -82,3 +82,23 @@ footer{max-width:1280px;margin:20px auto;color:var(--muted);padding:0 18px}
 .predScore{
   flex-wrap:wrap;
 }
+
+.rowSaveBtn{
+  display:inline-block;
+  min-width:82px;
+  padding:8px 10px;
+  font-size:12px;
+  border-color:#2f7eea;
+  color:#075ed8;
+  background:#ffffff;
+}
+.savedHint{
+  display:block;
+  margin-top:4px;
+  color:#0a7a2f;
+  font-size:12px;
+  font-weight:800;
+}
+.predictionsListWrap{
+  overflow:auto;
+}
