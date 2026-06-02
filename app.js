@@ -14,13 +14,21 @@ const firebaseConfig = {
 };
 const ADMIN_EMAIL = "damaryfonsecaayala@gmail.com";
 
-const app=initializeApp(firebaseConfig), auth=getAuth(app), db=getFirestore(app);
-let participants=[],matches=[],predictions=[],isAdmin=false;
-const $=id=>document.getElementById(id);
-document.querySelectorAll("nav button").forEach(btn=>btn.onclick=()=>{document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));btn.classList.add("active");$(`view-${btn.dataset.view}`).classList.add("active")});
-$("matchSearch")?.addEventListener("input",renderMatches); $("phaseFilter")?.addEventListener("change",renderMatches); $("todayBtn")?.addEventListener("click",()=>{$("matchSearch").value=""; $("phaseFilter").value=""; window.showUpcomingOnly = !window.showUpcomingOnly; renderMatches();}); $("bulkParticipant")?.addEventListener("change",renderBulkPredictions); $("viewParticipant")?.addEventListener("change",renderPredictions);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+let participants = [];
+let matches = [];
+let predictions = [];
+let isAdmin = false;
+let showUpcomingOnly = false;
+
+const $ = id => document.getElementById(id);
+
+function esc(s){
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[c]));
+}
 function flagImg(code,name){
   if(!code) return `<span class="flagFallback">${esc((name||"").slice(0,2).toUpperCase())}</span>`;
   return `<img class="flagImg" src="https://flagcdn.com/w40/${code}.png" alt="${esc(name)}" loading="lazy" onerror="this.outerHTML='<span class=&quot;flagFallback&quot;>${esc((name||'').slice(0,2).toUpperCase())}</span>'">`;
@@ -28,15 +36,32 @@ function flagImg(code,name){
 function matchLabel(m){
   return `${flagImg(m.flagCodeA,m.teamA)}<span class="flagText">${esc(m.teamA)}</span><span class="vs">vs</span>${flagImg(m.flagCodeB,m.teamB)}<span class="flagText">${esc(m.teamB)}</span>`;
 }
-function localDate(utc){return utc?new Date(utc).toLocaleString("es-CL",{timeZone:"America/Santiago",weekday:"short",day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}).replace(",", " ·"):""}
-function winner(a,b){if(a===""||b===""||a==null||b==null)return"";a=+a;b=+b;return a>b?"A":b>a?"B":"E"}
-function pts(p,m){if(!m||m.realA===""||m.realB===""||m.realA==null||m.realB==null)return 0;return (+p.goalsA===+m.realA&&+p.goalsB===+m.realB)?3:(winner(p.goalsA,p.goalsB)===winner(m.realA,m.realB)?1:0)}
-function stat(pid){let ps=predictions.filter(p=>p.participantId===pid),points=0;ps.forEach(p=>points+=pts(p,matches.find(m=>m.id===p.matchId)));return{count:ps.length,points}}
+function localDate(utc){
+  return utc ? new Date(utc).toLocaleString("es-CL", {
+    timeZone:"America/Santiago", weekday:"short", day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit"
+  }).replace(",", " ·") : "";
+}
+function winner(a,b){
+  if(a === "" || b === "" || a == null || b == null) return "";
+  a = Number(a); b = Number(b);
+  if(a > b) return "A";
+  if(b > a) return "B";
+  return "E";
+}
+function pointsFor(pred,match){
+  if(!match || match.realA === "" || match.realB === "" || match.realA == null || match.realB == null) return 0;
+  if(Number(pred.goalsA) === Number(match.realA) && Number(pred.goalsB) === Number(match.realB)) return 3;
+  return winner(pred.goalsA,pred.goalsB) === winner(match.realA,match.realB) ? 1 : 0;
+}
+function participantStats(pid){
+  const ps = predictions.filter(p => p.participantId === pid);
+  let points = 0;
+  ps.forEach(p => points += pointsFor(p, matches.find(m => m.id === p.matchId)));
+  return { count: ps.length, points };
+}
 function nextUpcomingMatch(){
   const now = new Date();
-  return matches
-    .filter(m => m.utc && new Date(m.utc) >= now)
-    .sort((a,b)=>new Date(a.utc)-new Date(b.utc))[0];
+  return matches.filter(m => m.utc && new Date(m.utc) >= now).sort((a,b)=>new Date(a.utc)-new Date(b.utc))[0];
 }
 function countdownText(utc){
   if(!utc) return "";
@@ -45,35 +70,55 @@ function countdownText(utc){
   const d = Math.floor(diff/86400000);
   const h = Math.floor((diff%86400000)/3600000);
   const m = Math.floor((diff%3600000)/60000);
-  if(d>0) return `${d} días · ${h} h · ${m} min`;
-  return `${h} h · ${m} min`;
+  return d > 0 ? `${d} días · ${h} h · ${m} min` : `${h} h · ${m} min`;
 }
 function isSoon(m){
   if(!m?.utc) return false;
   const diff = new Date(m.utc) - new Date();
   return diff > 0 && diff <= 48*3600000;
 }
-function hasChile(m){
-  return /chile/i.test(`${m.teamA} ${m.teamB}`);
-}
 function groupRemaining(){
   return matches.filter(m => (m.group||"").startsWith("Grupo") && (m.realA==="" || m.realB==="" || m.realA==null || m.realB==null)).length;
 }
 function lastResult(){
-  return matches
-    .filter(m => m.realA!=="" && m.realB!=="" && m.realA!=null && m.realB!=null)
-    .sort((a,b)=>(b.matchNumber||0)-(a.matchNumber||0))[0];
+  return matches.filter(m => m.realA!=="" && m.realB!=="" && m.realA!=null && m.realB!=null).sort((a,b)=>(b.matchNumber||0)-(a.matchNumber||0))[0];
+}
+
+function renderAll(){
+  renderRanking();
+  renderParticipants();
+  renderMatches();
+  renderPredictions();
+  renderBulkPredictions();
+  renderTeams();
+  fillSelects();
+  fillPhaseFilter();
+  renderNextMatch();
+}
+
+function renderRanking(){
+  const rows = participants.map(p => ({...p, ...participantStats(p.id)}))
+    .sort((a,b)=> b.points - a.points || a.name.localeCompare(b.name));
+  $("rankingBody").innerHTML = rows.map((p,i)=>`
+    <tr><td>${i+1}</td><td>${esc(p.name)}</td><td><strong>${p.points}</strong></td><td>${p.count}</td></tr>
+  `).join("");
+  $("podium").innerHTML = rows.slice(0,3).map((p,i)=>`
+    <div class="podiumCard">
+      <div class="muted">${["🥇 1° lugar","🥈 2° lugar","🥉 3° lugar"][i]}</div>
+      <strong>${esc(p.name)}</strong>
+      <div>${p.points} puntos</div>
+    </div>
+  `).join("");
 }
 function renderNextMatch(){
   const n = nextUpcomingMatch();
   const last = lastResult();
-  const soon = n && isSoon(n);
   const nextHtml = n ? `
-    <h3>${soon ? "🔥 Próximo partido en menos de 48 h" : "⏳ Próximo partido"}</h3>
+    <h3>${isSoon(n) ? "🔥 Próximo partido en menos de 48 h" : "⏳ Próximo partido"}</h3>
     <div class="nextTeams">
       <div class="nextTeam">${flagImg(n.flagCodeA,n.teamA)} ${esc(n.teamA)}</div>
       <div class="nextVs">VS</div>
-      <div class="nextTeam right">${flagImg(n.flagCodeB,n.teamB)} ${esc(n.teamB)}</div>
+      <div class="nextTeam">${flagImg(n.flagCodeB,n.teamB)} ${esc(n.teamB)}</div>
     </div>
     <div class="countdown">${countdownText(n.utc)}</div>
     <div class="matchMeta">
@@ -83,160 +128,166 @@ function renderNextMatch(){
     </div>
   ` : `<h3>🏁 No hay partidos futuros cargados</h3>`;
 
-  const infoHtml = `
-    <div class="infoGrid">
-      <div class="infoCard ${soon ? "warnSoon" : ""}">
-        <div class="muted">Estado del calendario</div>
-        <strong>${groupRemaining()}</strong>
-        <div>partidos pendientes de fase de grupos</div>
-      </div>
-      <div class="infoCard">
-        <div class="muted">Último resultado ingresado</div>
-        ${last ? `
-          <div>${flagImg(last.flagCodeA,last.teamA)} ${esc(last.teamA)} vs ${flagImg(last.flagCodeB,last.teamB)} ${esc(last.teamB)}</div>
-          <div class="lastResultScore">${last.realA} - ${last.realB}</div>
-        ` : `<div>Aún no hay resultados cargados.</div>`}
-      </div>
-    </div>
+  const summary = `
+    <div class="infoCard"><div class="muted">Fase de grupos pendiente</div><strong>${groupRemaining()}</strong><div>partidos sin resultado</div></div>
+    <div class="infoCard"><div class="muted">Último resultado ingresado</div>${
+      last ? `<div>${matchLabel(last)}</div><div class="lastResultScore">${last.realA} - ${last.realB}</div>` : `<div>Aún no hay resultados cargados.</div>`
+    }</div>
   `;
-
-  if($("nextMatchHero")) $("nextMatchHero").innerHTML = nextHtml + infoHtml;
+  if($("nextMatchHero")) $("nextMatchHero").innerHTML = nextHtml;
   if($("nextMatchBox")) $("nextMatchBox").innerHTML = nextHtml;
+  if($("summaryCards")) $("summaryCards").innerHTML = summary;
 }
-
-function renderAll(){
-  renderParticipants();
-  renderMatches();
-  renderPredictions();
-  renderRanking();
-  fillSelects();
-  renderTeams();
-  fillPhaseFilter();
-  renderNextMatch();
-  renderBulkPredictions();
+function renderParticipants(){
+  $("participantsBody").innerHTML = participants.map(p => `
+    <tr><td>${esc(p.name)}</td><td>${participantStats(p.id).count}</td>
+    <td class="adminOnly"><button class="danger" data-del-participant="${p.id}">Eliminar</button></td></tr>
+  `).join("");
+  document.querySelectorAll("[data-del-participant]").forEach(btn => {
+    btn.onclick = async () => {
+      if(!isAdmin) return alert("Solo admin.");
+      if(confirm("¿Eliminar participante?")) await deleteDoc(doc(db,"participants",btn.dataset.delParticipant));
+    };
+  });
 }
-
-function renderParticipants(){$("participantsBody").innerHTML=participants.map(p=>`<tr><td>${esc(p.name)}</td><td>${stat(p.id).count}</td><td class="adminOnly"><button class="danger" data-del-participant="${p.id}">Eliminar</button></td></tr>`).join("");document.querySelectorAll("[data-del-participant]").forEach(b=>b.onclick=async()=>{if(isAdmin&&confirm("¿Eliminar participante?"))await deleteDoc(doc(db,"participants",b.dataset.delParticipant))})}
-function fillPhaseFilter(){let cur=$("phaseFilter").value, phases=[...new Set(matches.map(m=>m.group).filter(Boolean))];$("phaseFilter").innerHTML=`<option value="">Todas las fases</option>`+phases.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join("");$("phaseFilter").value=cur}
-function filteredMatches(){let q=($("matchSearch")?.value||"").toLowerCase(), ph=$("phaseFilter")?.value||"";return matches.filter(m=>(!q||`${m.group} ${m.teamA} ${m.teamB} ${m.venue}`.toLowerCase().includes(q))&&(!ph||m.group===ph)&&(!window.showUpcomingOnly || (m.utc && new Date(m.utc)>=new Date()))).sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999))}
-function renderMatches(){$("matchesBody").innerHTML=filteredMatches().map(m=>`<tr class="${isSoon(m) ? "upcomingRow liveSoon" : ""} ${hasChile(m) ? "highlightChile" : ""}">
-<td>${m.matchNumber??""}</td>
-<td><span class="chip">${esc(m.group)}</span></td>
-<td><div class="matchTitle">${matchLabel(m)}</div><div class="muted">${esc(m.noteA||m.noteB||"")}</div></td>
-<td><strong>🇨🇱 ${localDate(m.utc)}</strong></td>
-<td><div class="venue">🏟️ ${esc(m.venue||"")}</div></td>
-<td><strong>${m.realA??""} - ${m.realB??""}</strong></td>
-<td class="adminOnly"><input type="number" min="0" value="${m.realA??""}" data-real-a="${m.id}" style="width:70px"><input type="number" min="0" value="${m.realB??""}" data-real-b="${m.id}" style="width:70px"><button data-save-result="${m.id}">Guardar</button><button class="danger" data-del-match="${m.id}">Eliminar</button></td>
-</tr>`).join("");document.querySelectorAll("[data-save-result]").forEach(b=>b.onclick=async()=>{let id=b.dataset.saveResult;await updateDoc(doc(db,"matches",id),{realA:document.querySelector(`[data-real-a="${id}"]`).value,realB:document.querySelector(`[data-real-b="${id}"]`).value})});document.querySelectorAll("[data-del-match]").forEach(b=>b.onclick=async()=>{if(confirm("¿Eliminar partido?"))await deleteDoc(doc(db,"matches",b.dataset.delMatch))})}
+function fillPhaseFilter(){
+  const sel = $("phaseFilter");
+  if(!sel) return;
+  const current = sel.value;
+  const phases = [...new Set(matches.map(m => m.group).filter(Boolean))];
+  sel.innerHTML = `<option value="">Todas las fases</option>` + phases.map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join("");
+  sel.value = current;
+}
+function filteredMatches(){
+  const q = ($("matchSearch")?.value || "").toLowerCase();
+  const ph = $("phaseFilter")?.value || "";
+  const now = new Date();
+  return matches.filter(m => {
+    const blob = `${m.group} ${m.teamA} ${m.teamB} ${m.venue}`.toLowerCase();
+    return (!q || blob.includes(q)) && (!ph || m.group === ph) && (!showUpcomingOnly || (m.utc && new Date(m.utc) >= now));
+  }).sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999));
+}
+function renderMatches(){
+  $("matchesBody").innerHTML = filteredMatches().map(m => `
+    <tr class="${isSoon(m) ? "upcomingRow liveSoon" : ""}">
+      <td>${m.matchNumber ?? ""}</td>
+      <td><span class="chip">${esc(m.group||"")}</span></td>
+      <td><div class="matchTitle">${matchLabel(m)}</div><div class="muted">${esc(m.noteA || m.noteB || "")}</div></td>
+      <td><strong>🇨🇱 ${localDate(m.utc)}</strong></td>
+      <td><div class="venue">🏟️ ${esc(m.venue||"")}</div></td>
+      <td><strong>${m.realA ?? ""} - ${m.realB ?? ""}</strong></td>
+      <td class="adminOnly">
+        <input type="number" min="0" value="${m.realA ?? ""}" data-real-a="${m.id}" style="width:70px">
+        <input type="number" min="0" value="${m.realB ?? ""}" data-real-b="${m.id}" style="width:70px">
+        <button data-save-result="${m.id}">Guardar</button>
+        <button class="danger" data-del-match="${m.id}">Eliminar</button>
+      </td>
+    </tr>
+  `).join("");
+  document.querySelectorAll("[data-save-result]").forEach(btn => {
+    btn.onclick = async () => {
+      const id = btn.dataset.saveResult;
+      await updateDoc(doc(db,"matches",id), {
+        realA: document.querySelector(`[data-real-a="${id}"]`).value,
+        realB: document.querySelector(`[data-real-b="${id}"]`).value
+      });
+    };
+  });
+  document.querySelectorAll("[data-del-match]").forEach(btn => {
+    btn.onclick = async () => {
+      if(confirm("¿Eliminar partido?")) await deleteDoc(doc(db,"matches",btn.dataset.delMatch));
+    };
+  });
+}
 function renderPredictions(){
   const selected = $("viewParticipant")?.value || "";
-  const rows = predictions
-    .filter(p => !selected || p.participantId === selected)
+  const rows = predictions.filter(p => !selected || p.participantId === selected)
     .sort((a,b)=>{
-      const ma=matches.find(x=>x.id===a.matchId), mb=matches.find(x=>x.id===b.matchId);
+      const ma = matches.find(m=>m.id===a.matchId);
+      const mb = matches.find(m=>m.id===b.matchId);
       return (ma?.matchNumber||999)-(mb?.matchNumber||999);
     });
-  $("predictionsBody").innerHTML=rows.map(p=>{
-    let u=participants.find(x=>x.id===p.participantId),m=matches.find(x=>x.id===p.matchId);
-    return(!u||!m)?"":`<tr><td>${esc(u.name)}</td><td>${matchLabel(m)}</td><td>${localDate(m.utc)}</td><td><strong>${p.goalsA} - ${p.goalsB}</strong></td><td>${pts(p,m)}</td></tr>`
+  $("predictionsBody").innerHTML = rows.map(p => {
+    const participant = participants.find(x=>x.id===p.participantId);
+    const match = matches.find(x=>x.id===p.matchId);
+    if(!participant || !match) return "";
+    return `<tr><td>${esc(participant.name)}</td><td>${matchLabel(match)}</td><td>${localDate(match.utc)}</td><td><strong>${p.goalsA} - ${p.goalsB}</strong></td><td>${pointsFor(p,match)}</td></tr>`;
   }).join("");
 }
 function renderBulkPredictions(){
-  if(!$("bulkPredictionsBody")) return;
+  const body = $("bulkPredictionsBody");
+  if(!body) return;
   const pid = $("bulkParticipant")?.value || participants[0]?.id || "";
   const existing = Object.fromEntries(predictions.filter(p=>p.participantId===pid).map(p=>[p.matchId,p]));
-  $("bulkPredictionsBody").innerHTML = matches.slice().sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999)).map(m=>{
+  body.innerHTML = matches.slice().sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999)).map(m => {
     const p = existing[m.id] || {};
     return `<tr>
-      <td>${m.matchNumber??""}</td>
+      <td>${m.matchNumber ?? ""}</td>
       <td><span class="chip">${esc(m.group||"")}</span></td>
       <td>${matchLabel(m)}</td>
       <td>${localDate(m.utc)}</td>
-      <td><div class="predScore"><input type="number" min="0" value="${p.goalsA??""}" placeholder="A" data-bulk-a="${m.id}"><span class="smallVs">-</span><input type="number" min="0" value="${p.goalsB??""}" placeholder="B" data-bulk-b="${m.id}"></div></td>
+      <td><div class="predScore"><input type="number" min="0" value="${p.goalsA ?? ""}" placeholder="A" data-bulk-a="${m.id}"><span class="smallVs">-</span><input type="number" min="0" value="${p.goalsB ?? ""}" placeholder="B" data-bulk-b="${m.id}"></div></td>
     </tr>`;
   }).join("");
 }
-function fillSelects(){
-  const opts = participants.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join("");
-  if($("predParticipant")) $("predParticipant").innerHTML=opts;
-  if($("bulkParticipant")){
-    const old=$("bulkParticipant").value;
-    $("bulkParticipant").innerHTML=opts;
-    if(old) $("bulkParticipant").value=old;
-  }
-  if($("viewParticipant")){
-    const old=$("viewParticipant").value;
-    $("viewParticipant").innerHTML=`<option value="">Todos los participantes</option>`+opts;
-    if(old) $("viewParticipant").value=old;
-  }
-  if($("predMatch")) $("predMatch").innerHTML=matches.slice().sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999)).map(m=>`<option value="${m.id}">#${m.matchNumber||""} ${esc(m.teamA)} vs ${esc(m.teamB)} — ${localDate(m.utc)}</option>`).join("");
-}
 function renderTeams(){
-  let teams={};
-  matches.forEach(m=>[[m.teamA,m.flagCodeA,m.noteA],[m.teamB,m.flagCodeB,m.noteB]].forEach(([n,f,note])=>{
-    if(!n||n.includes("Grupo")||n.includes("Ganador")||n.includes("Perdedor")||n.includes("partido"))return;
-    if(!teams[n])teams[n]={name:n,flagCode:f,fact:note,games:0};
-    teams[n].games++;
-    if(!teams[n].fact)teams[n].fact=note;
+  const teams = {};
+  matches.forEach(m => [[m.teamA,m.flagCodeA,m.noteA],[m.teamB,m.flagCodeB,m.noteB]].forEach(([name,code,note])=>{
+    if(!name || name.includes("Grupo") || name.includes("Ganador") || name.includes("Perdedor") || name.includes("partido")) return;
+    if(!teams[name]) teams[name] = {name, code, note, games:0};
+    teams[name].games++;
+    if(!teams[name].note) teams[name].note = note;
   }));
-  $("teamsGrid").innerHTML=Object.values(teams).sort((a,b)=>a.name.localeCompare(b.name)).map(t=>`<div class="teamCard"><div class="bigFlag">${flagImg(t.flagCode,t.name)}</div><h3>${esc(t.name)}</h3><div class="muted">${t.games} partidos cargados</div><p>${esc(t.fact||"Participante del Mundial 2026.")}</p></div>`).join("");
+  $("teamsGrid").innerHTML = Object.values(teams).sort((a,b)=>a.name.localeCompare(b.name)).map(t => `
+    <div class="teamCard"><div class="bigFlag">${flagImg(t.code,t.name)}</div><h3>${esc(t.name)}</h3><div class="muted">${t.games} partidos cargados</div><p>${esc(t.note || "Participante del Mundial 2026.")}</p></div>
+  `).join("");
 }
-$("addParticipantBtn") && ($("addParticipantBtn").onclick=async()=>{if(!isAdmin)return alert("Solo admin.");let name=$("participantName").value.trim();if(name){await addDoc(collection(db,"participants"),{name,createdAt:serverTimestamp()});$("participantName").value=""}});
-$("seedScheduleBtn") && ($("seedScheduleBtn").onclick=async()=>{if(!isAdmin)return alert("Solo admin.");if(!confirm("¿Cargar/actualizar los 104 partidos? No borra participantes ni predicciones."))return;for(const m of OFFICIAL_MATCHES){let ref=doc(db,"matches",m.id), old=await getDoc(ref), keep=old.exists()?{realA:old.data().realA??"",realB:old.data().realB??""}:{};await setDoc(ref,{...m,...keep,updatedAt:serverTimestamp()})}alert("Calendario cargado con chiminuchina ✅")});
-$("savePredictionBtn") && ($("savePredictionBtn").onclick=async()=>{if(!isAdmin)return alert("Solo admin.");let participantId=$("predParticipant").value,matchId=$("predMatch").value,goalsA=$("predA").value,goalsB=$("predB").value;if(!participantId||!matchId||goalsA===""||goalsB==="")return alert("Faltan datos.");await setDoc(doc(db,"predictions",`${participantId}_${matchId}`),{participantId,matchId,goalsA,goalsB,updatedAt:serverTimestamp()});$("predA").value=$("predB").value=""});
-
-$("saveAllPredictionsBtn") && ($("saveAllPredictionsBtn").onclick=async()=>{
-  if(!isAdmin) return alert("Solo admin.");
-  const participantId = $("bulkParticipant")?.value;
-  if(!participantId) return alert("Primero agrega o selecciona un participante.");
-  let saved = 0;
-  for(const m of matches){
-    const a = document.querySelector(`[data-bulk-a="${m.id}"]`)?.value;
-    const b = document.querySelector(`[data-bulk-b="${m.id}"]`)?.value;
-    if(a !== "" && b !== ""){
-      await setDoc(doc(db,"predictions",`${participantId}_${m.id}`),{participantId,matchId:m.id,goalsA:a,goalsB:b,updatedAt:serverTimestamp()});
-      saved++;
-    }
+function fillSelects(){
+  const participantOptions = participants.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join("");
+  const bulk = $("bulkParticipant");
+  if(bulk){
+    const old = bulk.value;
+    bulk.innerHTML = participantOptions;
+    if(old) bulk.value = old;
   }
-  alert(`Apuestas guardadas: ${saved}`);
-});
+  const view = $("viewParticipant");
+  if(view){
+    const old = view.value;
+    view.innerHTML = `<option value="">Todos los participantes</option>` + participantOptions;
+    if(old) view.value = old;
+  }
+}
 
 function csvEscape(value){
   const s = String(value ?? "");
   return /[",\n;]/.test(s) ? `"${s.replaceAll('"','""')}"` : s;
 }
-function downloadText(filename, text, mime){
+function downloadText(filename,text,mime){
   const blob = new Blob([text], {type:mime});
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+  a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
   URL.revokeObjectURL(url);
 }
 function backupRows(){
-  return predictions
-    .map(p=>{
-      const participant = participants.find(x=>x.id===p.participantId);
-      const match = matches.find(x=>x.id===p.matchId);
-      return {
-        participante: participant?.name || "",
-        partido_numero: match?.matchNumber || "",
-        fase: match?.group || "",
-        equipo_a: match?.teamA || "",
-        equipo_b: match?.teamB || "",
-        fecha_chile: match ? localDate(match.utc) : "",
-        sede: match?.venue || "",
-        apuesta_a: p.goalsA ?? "",
-        apuesta_b: p.goalsB ?? "",
-        resultado_a: match?.realA ?? "",
-        resultado_b: match?.realB ?? "",
-        puntos: match ? pts(p,match) : 0
-      };
-    })
-    .sort((a,b)=>String(a.participante).localeCompare(String(b.participante)) || Number(a.partido_numero)-Number(b.partido_numero));
+  return predictions.map(p => {
+    const participant = participants.find(x=>x.id===p.participantId);
+    const match = matches.find(x=>x.id===p.matchId);
+    return {
+      participante: participant?.name || "",
+      partido_numero: match?.matchNumber || "",
+      fase: match?.group || "",
+      equipo_a: match?.teamA || "",
+      equipo_b: match?.teamB || "",
+      fecha_chile: match ? localDate(match.utc) : "",
+      sede: match?.venue || "",
+      apuesta_a: p.goalsA ?? "",
+      apuesta_b: p.goalsB ?? "",
+      resultado_a: match?.realA ?? "",
+      resultado_b: match?.realB ?? "",
+      puntos: match ? pointsFor(p,match) : 0
+    };
+  }).sort((a,b)=>String(a.participante).localeCompare(String(b.participante)) || Number(a.partido_numero)-Number(b.partido_numero));
 }
 function downloadPredictionsCsv(){
   const rows = backupRows();
@@ -245,20 +296,88 @@ function downloadPredictionsCsv(){
   downloadText(`apuestas_loquito_mundialero_${new Date().toISOString().slice(0,10)}.csv`, csv, "text/csv;charset=utf-8");
 }
 function downloadFullJson(){
-  const payload = {
-    generado: new Date().toISOString(),
-    participantes: participants,
-    partidos: matches,
-    predicciones: predictions,
-    apuestas_resumen: backupRows()
-  };
+  const payload = { generado:new Date().toISOString(), participantes:participants, partidos:matches, predicciones:predictions, apuestas_resumen:backupRows() };
   downloadText(`respaldo_loquito_mundialero_${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(payload,null,2), "application/json;charset=utf-8");
 }
-$("downloadCsvBtn") && ($("downloadCsvBtn").onclick=downloadPredictionsCsv);
-$("downloadJsonBtn") && ($("downloadJsonBtn").onclick=downloadFullJson);
 
-$("loginBtn") && ($("loginBtn").onclick=async()=>{try{await signInWithEmailAndPassword(auth,$("email").value.trim(),$("password").value)}catch(e){alert("No se pudo iniciar sesión: "+e.message)}});$("logoutBtn") && ($("logoutBtn").onclick=()=>signOut(auth));
-onAuthStateChanged(auth,user=>{isAdmin=!!user&&user.email===ADMIN_EMAIL;document.body.classList.toggle("isAdmin",isAdmin);$("loginBox").classList.toggle("hidden",!!user);$("adminBox").classList.toggle("hidden",!user);$("adminEmail").textContent=user?.email||"";if(user&&!isAdmin)alert("Este correo no está autorizado como administrador.")});
-onSnapshot(query(collection(db,"participants"),orderBy("createdAt","asc")),s=>{participants=s.docs.map(d=>({id:d.id,...d.data()}));if(typeof renderAll==="function") renderAll()});
-onSnapshot(query(collection(db,"matches"),orderBy("matchNumber","asc")),s=>{matches=s.docs.map(d=>({id:d.id,...d.data()}));if(typeof renderAll==="function") renderAll()});
-onSnapshot(collection(db,"predictions"),s=>{predictions=s.docs.map(d=>({id:d.id,...d.data()}));if(typeof renderAll==="function") renderAll()});
+document.querySelectorAll("nav button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+    btn.classList.add("active");
+    $(`view-${btn.dataset.view}`).classList.add("active");
+  });
+});
+
+$("matchSearch")?.addEventListener("input", renderMatches);
+$("phaseFilter")?.addEventListener("change", renderMatches);
+$("bulkParticipant")?.addEventListener("change", renderBulkPredictions);
+$("viewParticipant")?.addEventListener("change", renderPredictions);
+$("upcomingBtn")?.addEventListener("click", () => { showUpcomingOnly = !showUpcomingOnly; renderMatches(); });
+
+$("addParticipantBtn")?.addEventListener("click", async () => {
+  if(!isAdmin) return alert("Solo admin.");
+  const name = $("participantName").value.trim();
+  if(!name) return;
+  await addDoc(collection(db,"participants"), {name, createdAt:serverTimestamp()});
+  $("participantName").value = "";
+});
+$("seedScheduleBtn")?.addEventListener("click", async () => {
+  if(!isAdmin) return alert("Solo admin.");
+  if(!confirm("¿Cargar/actualizar los 104 partidos? No borra participantes ni apuestas.")) return;
+  for(const m of OFFICIAL_MATCHES){
+    const ref = doc(db,"matches",m.id);
+    const old = await getDoc(ref);
+    const keep = old.exists() ? {realA: old.data().realA ?? "", realB: old.data().realB ?? ""} : {};
+    await setDoc(ref, {...m, ...keep, updatedAt:serverTimestamp()});
+  }
+  alert("Calendario cargado ✅");
+});
+$("saveAllPredictionsBtn")?.addEventListener("click", async () => {
+  if(!isAdmin) return alert("Solo admin.");
+  const participantId = $("bulkParticipant")?.value;
+  if(!participantId) return alert("Primero agrega o selecciona un participante.");
+  let saved = 0;
+  for(const m of matches){
+    const a = document.querySelector(`[data-bulk-a="${m.id}"]`)?.value;
+    const b = document.querySelector(`[data-bulk-b="${m.id}"]`)?.value;
+    if(a !== "" && b !== ""){
+      await setDoc(doc(db,"predictions",`${participantId}_${m.id}`), {participantId, matchId:m.id, goalsA:a, goalsB:b, updatedAt:serverTimestamp()});
+      saved++;
+    }
+  }
+  alert(`Apuestas guardadas: ${saved}`);
+});
+$("loginBtn")?.addEventListener("click", async () => {
+  try{
+    await signInWithEmailAndPassword(auth, $("email").value.trim(), $("password").value);
+  }catch(e){
+    alert("No se pudo iniciar sesión: " + e.message);
+  }
+});
+$("logoutBtn")?.addEventListener("click", () => signOut(auth));
+$("downloadCsvBtn")?.addEventListener("click", downloadPredictionsCsv);
+$("downloadJsonBtn")?.addEventListener("click", downloadFullJson);
+
+onAuthStateChanged(auth, user => {
+  isAdmin = !!user && user.email === ADMIN_EMAIL;
+  document.body.classList.toggle("isAdmin", isAdmin);
+  $("loginBox")?.classList.toggle("hidden", !!user);
+  $("adminBox")?.classList.toggle("hidden", !user);
+  if($("adminEmail")) $("adminEmail").textContent = user?.email || "";
+  if(user && !isAdmin) alert("Este correo no está autorizado como administrador.");
+  renderAll();
+});
+
+onSnapshot(query(collection(db,"participants"), orderBy("createdAt","asc")), snap => {
+  participants = snap.docs.map(d=>({id:d.id, ...d.data()}));
+  renderAll();
+});
+onSnapshot(query(collection(db,"matches"), orderBy("matchNumber","asc")), snap => {
+  matches = snap.docs.map(d=>({id:d.id, ...d.data()}));
+  renderAll();
+});
+onSnapshot(collection(db,"predictions"), snap => {
+  predictions = snap.docs.map(d=>({id:d.id, ...d.data()}));
+  renderAll();
+});
