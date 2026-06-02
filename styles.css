@@ -67,3 +67,18 @@ footer{max-width:1280px;margin:20px auto;color:var(--muted);padding:0 18px}
   table{font-size:13px}th,td{padding:8px}header h1{font-size:22px}.filters{grid-template-columns:1fr}nav{position:static}
   .nextTeams{grid-template-columns:1fr;gap:8px}.nextVs{width:max-content}.nextTeam{font-size:17px}.flagImg{width:26px;height:19px}.predScore input{width:52px}
 }
+
+.rowSaveBtn{
+  padding:7px 10px;
+  font-size:12px;
+  white-space:nowrap;
+}
+.savedHint{
+  color:#0a7a2f;
+  font-size:12px;
+  font-weight:800;
+  min-width:70px;
+}
+.predScore{
+  flex-wrap:wrap;
+}
