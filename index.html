@@ -6,7 +6,7 @@
 #participantsTable th,#participantsTable td{position:static!important}
 #participantsTable input{max-width:260px;width:100%}
 </style></head><body>
-<header><h1>Loquito Mundialero 2026</h1><div class="sub">Participantes ilimitados, predicciones, resultados reales, puntaje y clasificación automática.</div></header>
+<header><h1>La Polla del Loquito 2026</h1><div class="sub">Participantes ilimitados, predicciones, resultados reales, puntaje y clasificación automática.</div></header>
 <nav id="nav"></nav><main>
 <section id="inicio" class="tab active"><div class="grid"><div class="card"><h2>Uso rápido</h2><p>1) Agrega participantes. 2) Carga predicciones por persona. 3) Ingresa resultados reales. 4) Mira la clasificación.</p><p class="muted">Todo queda guardado en este navegador mediante localStorage. También puedes exportar/importar respaldo JSON.</p><div class="row"><button class="primary" onclick="exportJSON()">Exportar respaldo JSON</button><label class="btn">Importar JSON<input type="file" accept="application/json" onchange="importJSON(event)" hidden></label><button onclick="exportCSV()">Exportar clasificación CSV</button><button class="danger" onclick="resetAll()">Reiniciar todo</button></div></div><div class="card"><h2>Reglas de puntaje</h2><div id="rulesBox"></div></div></div><div class="card"><h2>Resumen</h2><div id="summary"></div></div></section>
 <section id="participantes" class="tab"><div class="card"><h2>Participantes</h2><div class="row"><input id="newParticipant" class="wide" placeholder="Nombre participante"><button class="primary" onclick="addParticipant()">Agregar</button></div></div><div class="card tablewrap"><table id="participantsTable"></table></div></section>
