@@ -35,5 +35,16 @@
 </table>
 </section>
 <section id="view-selecciones" class="view"><h2>Selecciones</h2><p>DATOS VARIOS.</p><div id="teamsGrid" class="teamsGrid"></div></section>
-<section id="view-admin" class="view"><h2>Admin</h2><div id="loginBox" class="card"><p>Inicia sesión con el correo administrador autorizado.</p><input id="email" type="email" placeholder="Correo admin"/><input id="password" type="password" placeholder="Contraseña"/><button id="loginBtn">Entrar</button></div><div id="adminBox" class="card hidden"><p><strong>Sesión admin activa:</strong> <span id="adminEmail"></span></p><button id="logoutBtn">Cerrar sesión</button></div><div class="card"><h3>Reglas de puntaje</h3><p>Exacto: 3 puntos · Resultado acertado: 1 punto · Nada: 0 puntos.</p></div></section>
-</main><footer><small>Horarios en Chile · Fechas ajustadas a America/Santiago.</small></footer><script type="module" src="app.js?v=5"></script></body></html>
+<section id="view-admin" class="view"><h2>Admin</h2><div id="loginBox" class="card"><p>Inicia sesión con el correo administrador autorizado.</p><input id="email" type="email" placeholder="Correo admin"/><input id="password" type="password" placeholder="Contraseña"/><button id="loginBtn">Entrar</button></div><div id="adminBox" class="card hidden">
+<p><strong>Sesión admin activa:</strong> <span id="adminEmail"></span></p>
+<button id="logoutBtn">Cerrar sesión</button>
+</div>
+<div class="adminOnly card">
+<h3>💾 Respaldos descargables</h3>
+<p>Descarga las apuestas, participantes y partidos como respaldo.</p>
+<div class="formline">
+<button id="downloadCsvBtn" class="primary">Descargar apuestas CSV</button>
+<button id="downloadJsonBtn" class="primary">Descargar respaldo JSON</button>
+</div>
+</div><div class="card"><h3>Reglas de puntaje</h3><p>Exacto: 3 puntos · Resultado acertado: 1 punto · Nada: 0 puntos.</p></div></section>
+</main><footer><small>Horarios en Chile · Fechas ajustadas a America/Santiago.</small></footer><script type="module" src="app.js?v=6"></script></body></html>

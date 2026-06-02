@@ -131,3 +131,58 @@
   .flagImg{width:26px;height:19px}
   .predScore input{width:52px}
 }
+
+.nextTeams{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:12px;
+  align-items:center;
+  max-width:720px;
+}
+.nextTeam{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:900;
+  font-size:20px;
+}
+.nextTeam.right{
+  justify-content:flex-start;
+}
+.nextVs{
+  font-weight:900;
+  color:#52627a;
+  background:white;
+  border:1px solid #d8e0ef;
+  border-radius:999px;
+  padding:6px 10px;
+}
+.infoGrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:10px;
+  margin:12px 0 18px;
+}
+.infoCard{
+  border:1px solid #d8e0ef;
+  background:#fff;
+  border-radius:14px;
+  padding:12px;
+}
+.infoCard strong{
+  font-size:20px;
+}
+.warnSoon{
+  background:linear-gradient(135deg,#fff1d6,#fff);
+  border-color:#f4b400;
+}
+.lastResultScore{
+  font-size:22px;
+  font-weight:900;
+  color:#0b5ed7;
+}
+@media(max-width:700px){
+  .nextTeams{grid-template-columns:1fr;gap:8px}
+  .nextVs{width:max-content}
+  .nextTeam{font-size:17px}
+}

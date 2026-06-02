@@ -56,11 +56,25 @@ function isSoon(m){
 function hasChile(m){
   return /chile/i.test(`${m.teamA} ${m.teamB}`);
 }
+function groupRemaining(){
+  return matches.filter(m => (m.group||"").startsWith("Grupo") && (m.realA==="" || m.realB==="" || m.realA==null || m.realB==null)).length;
+}
+function lastResult(){
+  return matches
+    .filter(m => m.realA!=="" && m.realB!=="" && m.realA!=null && m.realB!=null)
+    .sort((a,b)=>(b.matchNumber||0)-(a.matchNumber||0))[0];
+}
 function renderNextMatch(){
   const n = nextUpcomingMatch();
-  const html = n ? `
-    <h3>⏳ Próximo partido</h3>
-    <div class="matchTitle"><span class="flag">${n.flagA||"🏳️"}</span>${esc(n.teamA)} <span class="vs">vs</span> <span class="flag">${n.flagB||"🏳️"}</span>${esc(n.teamB)}</div>
+  const last = lastResult();
+  const soon = n && isSoon(n);
+  const nextHtml = n ? `
+    <h3>${soon ? "🔥 Próximo partido en menos de 48 h" : "⏳ Próximo partido"}</h3>
+    <div class="nextTeams">
+      <div class="nextTeam">${flagImg(n.flagCodeA,n.teamA)} ${esc(n.teamA)}</div>
+      <div class="nextVs">VS</div>
+      <div class="nextTeam right">${flagImg(n.flagCodeB,n.teamB)} ${esc(n.teamB)}</div>
+    </div>
     <div class="countdown">${countdownText(n.utc)}</div>
     <div class="matchMeta">
       <span class="metaPill">🇨🇱 ${localDate(n.utc)}</span>
@@ -68,12 +82,27 @@ function renderNextMatch(){
       <span class="metaPill">🏷️ ${esc(n.group||"")}</span>
     </div>
   ` : `<h3>🏁 No hay partidos futuros cargados</h3>`;
-  if($("nextMatchHero")) $("nextMatchHero").innerHTML = html;
-  if($("nextMatchBox")) $("nextMatchBox").innerHTML = html;
-}
 
-function renderAll(){renderParticipants();renderMatches();renderPredictions();renderRanking();fillSelects();renderTeams();fillPhaseFilter();renderNextMatch();renderBulkPredictions()}
-function renderRanking(){let rows=participants.map(p=>({...p,...stat(p.id)})).sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name));$("rankingBody").innerHTML=rows.map((p,i)=>`<tr><td>${i+1}</td><td>${esc(p.name)}</td><td><strong>${p.points}</strong></td><td>${p.count}</td></tr>`).join("");$("podium").innerHTML=rows.slice(0,3).map((p,i)=>`<div class="podiumCard"><div class="muted">${["🥇 1° lugar","🥈 2° lugar","🥉 3° lugar"][i]}</div><strong>${esc(p.name)}</strong><div>${p.points} puntos</div></div>`).join("")}
+  const infoHtml = `
+    <div class="infoGrid">
+      <div class="infoCard ${soon ? "warnSoon" : ""}">
+        <div class="muted">Estado del calendario</div>
+        <strong>${groupRemaining()}</strong>
+        <div>partidos pendientes de fase de grupos</div>
+      </div>
+      <div class="infoCard">
+        <div class="muted">Último resultado ingresado</div>
+        ${last ? `
+          <div>${flagImg(last.flagCodeA,last.teamA)} ${esc(last.teamA)} vs ${flagImg(last.flagCodeB,last.teamB)} ${esc(last.teamB)}</div>
+          <div class="lastResultScore">${last.realA} - ${last.realB}</div>
+        ` : `<div>Aún no hay resultados cargados.</div>`}
+      </div>
+    </div>
+  `;
+
+  if($("nextMatchHero")) $("nextMatchHero").innerHTML = nextHtml + infoHtml;
+  if($("nextMatchBox")) $("nextMatchBox").innerHTML = nextHtml;
+}
 function renderParticipants(){$("participantsBody").innerHTML=participants.map(p=>`<tr><td>${esc(p.name)}</td><td>${stat(p.id).count}</td><td class="adminOnly"><button class="danger" data-del-participant="${p.id}">Eliminar</button></td></tr>`).join("");document.querySelectorAll("[data-del-participant]").forEach(b=>b.onclick=async()=>{if(isAdmin&&confirm("¿Eliminar participante?"))await deleteDoc(doc(db,"participants",b.dataset.delParticipant))})}
 function fillPhaseFilter(){let cur=$("phaseFilter").value, phases=[...new Set(matches.map(m=>m.group).filter(Boolean))];$("phaseFilter").innerHTML=`<option value="">Todas las fases</option>`+phases.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join("");$("phaseFilter").value=cur}
 function filteredMatches(){let q=($("matchSearch")?.value||"").toLowerCase(), ph=$("phaseFilter")?.value||"";return matches.filter(m=>(!q||`${m.group} ${m.teamA} ${m.teamB} ${m.venue}`.toLowerCase().includes(q))&&(!ph||m.group===ph)&&(!window.showUpcomingOnly || (m.utc && new Date(m.utc)>=new Date()))).sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999))}
@@ -158,6 +187,63 @@ $("saveAllPredictionsBtn") && ($("saveAllPredictionsBtn").onclick=async()=>{
   }
   alert(`Apuestas guardadas: ${saved}`);
 });
+
+function csvEscape(value){
+  const s = String(value ?? "");
+  return /[",\n;]/.test(s) ? `"${s.replaceAll('"','""')}"` : s;
+}
+function downloadText(filename, text, mime){
+  const blob = new Blob([text], {type:mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+function backupRows(){
+  return predictions
+    .map(p=>{
+      const participant = participants.find(x=>x.id===p.participantId);
+      const match = matches.find(x=>x.id===p.matchId);
+      return {
+        participante: participant?.name || "",
+        partido_numero: match?.matchNumber || "",
+        fase: match?.group || "",
+        equipo_a: match?.teamA || "",
+        equipo_b: match?.teamB || "",
+        fecha_chile: match ? localDate(match.utc) : "",
+        sede: match?.venue || "",
+        apuesta_a: p.goalsA ?? "",
+        apuesta_b: p.goalsB ?? "",
+        resultado_a: match?.realA ?? "",
+        resultado_b: match?.realB ?? "",
+        puntos: match ? pts(p,match) : 0
+      };
+    })
+    .sort((a,b)=>String(a.participante).localeCompare(String(b.participante)) || Number(a.partido_numero)-Number(b.partido_numero));
+}
+function downloadPredictionsCsv(){
+  const rows = backupRows();
+  const headers = ["participante","partido_numero","fase","equipo_a","equipo_b","fecha_chile","sede","apuesta_a","apuesta_b","resultado_a","resultado_b","puntos"];
+  const csv = "\ufeff" + [headers.join(";"), ...rows.map(r=>headers.map(h=>csvEscape(r[h])).join(";"))].join("\n");
+  downloadText(`apuestas_loquito_mundialero_${new Date().toISOString().slice(0,10)}.csv`, csv, "text/csv;charset=utf-8");
+}
+function downloadFullJson(){
+  const payload = {
+    generado: new Date().toISOString(),
+    participantes: participants,
+    partidos: matches,
+    predicciones: predictions,
+    apuestas_resumen: backupRows()
+  };
+  downloadText(`respaldo_loquito_mundialero_${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(payload,null,2), "application/json;charset=utf-8");
+}
+$("downloadCsvBtn") && ($("downloadCsvBtn").onclick=downloadPredictionsCsv);
+$("downloadJsonBtn") && ($("downloadJsonBtn").onclick=downloadFullJson);
+
 $("loginBtn") && ($("loginBtn").onclick=async()=>{try{await signInWithEmailAndPassword(auth,$("email").value.trim(),$("password").value)}catch(e){alert("No se pudo iniciar sesión: "+e.message)}});$("logoutBtn") && ($("logoutBtn").onclick=()=>signOut(auth));
 onAuthStateChanged(auth,user=>{isAdmin=!!user&&user.email===ADMIN_EMAIL;document.body.classList.toggle("isAdmin",isAdmin);$("loginBox").classList.toggle("hidden",!!user);$("adminBox").classList.toggle("hidden",!user);$("adminEmail").textContent=user?.email||"";if(user&&!isAdmin)alert("Este correo no está autorizado como administrador.")});
 onSnapshot(query(collection(db,"participants"),orderBy("createdAt","asc")),s=>{participants=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()});
