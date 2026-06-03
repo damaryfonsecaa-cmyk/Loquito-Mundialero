@@ -58,7 +58,7 @@ const TEAM_FACTS = {
   "Mexico": {titles:0, star:"Santiago Giménez", best:"Cuartos de final", fact:"Anfitrión: abre el Mundial 2026 en Ciudad de México."},
   "Morocco": {titles:0, star:"Achraf Hakimi", best:"Semifinales (2022)", fact:"Primera selección africana en llegar a semifinales."},
   "Netherlands": {titles:0, star:"Virgil van Dijk", best:"Subcampeón (3 veces)", fact:"Histórica selección europea que aún busca su primer Mundial."},
-  "New Zealand": {titles:0, star:"Chris Wood", best:"Fase de grupos", fact:"Representante oceánico de gran disciplina competitiva."},
+  "New Zealand": {titles:0, star:"Tim Payne", best:"Fase de grupos", fact:"Representante oceánico de gran disciplina competitiva."},
   "Norway": {titles:0, star:"Erling Haaland", best:"Octavos de final", fact:"Regresa con una generación ofensiva muy potente."},
   "Panama": {titles:0, star:"Adalberto Carrasquilla", best:"Fase de grupos (2018)", fact:"Segunda etapa mundialista para una selección en crecimiento."},
   "Paraguay": {titles:0, star:"Miguel Almirón", best:"Cuartos de final (2010)", fact:"Selección sudamericana históricamente difícil de enfrentar."},
@@ -747,10 +747,10 @@ function renderFlagBracket(){
   ].join("");
 
   lower.innerHTML = [
-    renderRoundBlock("16avos", [81,82,83,84,85,86,87,88]),
-    renderRoundBlock("Octavos", [93,94,95,96]),
+    renderRoundBlock("Semi", [102]),
     renderRoundBlock("Cuartos", [98,100]),
-    renderRoundBlock("Semi", [102])
+    renderRoundBlock("Octavos", [93,94,95,96]),
+    renderRoundBlock("16avos", [81,82,83,84,85,86,87,88])
   ].join("");
 
   const final = matches.find(m => Number(m.matchNumber) === 104);
@@ -1089,10 +1089,10 @@ function renderFlagBracket(){
   ].join("");
 
   lower.innerHTML = [
-    renderRoundBlock("16avos", [81,82,83,84,85,86,87,88]),
-    renderRoundBlock("Octavos", [93,94,95,96]),
+    renderRoundBlock("Semi", [102]),
     renderRoundBlock("Cuartos", [98,100]),
-    renderRoundBlock("Semi", [102])
+    renderRoundBlock("Octavos", [93,94,95,96]),
+    renderRoundBlock("16avos", [81,82,83,84,85,86,87,88])
   ].join("");
 
   const final = matches.find(m => Number(m.matchNumber) === 104);
