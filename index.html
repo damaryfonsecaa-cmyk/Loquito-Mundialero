@@ -98,6 +98,7 @@
 
   
 
+
 <section id="view-llaves" class="view">
   <h2>Llaves</h2>
   <p>Cuadro eliminatorio visual. Puedes editar manualmente los equipos de eliminación directa y, al ingresar resultados, los ganadores avanzan.</p>
@@ -114,37 +115,16 @@
     </div>
   </div>
 
-  <div class="posterBracket" id="posterBracket">
-    <div class="posterTop">
-      <div class="miniGroups" id="miniGroupsTop"></div>
-      <div class="championBox">
-        <div class="championTitle">WORLD CHAMPIONS</div>
-        <div id="championName" class="championName">?</div>
-      </div>
-    </div>
-
-    <div class="posterMain">
-      <div class="posterSide posterRed" id="posterLeft"></div>
-
-      <div class="posterCenter">
-        <div class="trophy">🏆</div>
-        <div class="finalLabel">FINAL</div>
-        <div id="finalMini" class="finalMini"></div>
-      </div>
-
-      <div class="posterSide posterBlue" id="posterRight"></div>
-    </div>
-
-    <div class="posterBottom">
-      <div class="thirdPlaceBox" id="thirdPlaceBox"></div>
-      <div class="miniGroups" id="miniGroupsBottom"></div>
+  <div class="worldChampionPanel" id="worldChampionPanel">
+    <div class="wcTrophy">🏆</div>
+    <div>
+      <div class="muted">WORLD CHAMPIONS</div>
+      <div id="championName" class="wcChampionName">?</div>
     </div>
   </div>
 
-  <h3>Vista compacta por rondas</h3>
-  <div class="bracketWrap" id="bracketWrap"></div>
+  <div class="bracketBoard" id="bracketBoard"></div>
 </section>
-
 
 <section id="view-estadisticas" class="view">
   <h2>Estadísticas</h2>
@@ -210,6 +190,6 @@
   <small>Horarios en Chile · Fechas ajustadas a America/Santiago.</small>
 </footer>
 
-<script type="module" src="app.js?v=17"></script>
+<script type="module" src="app.js?v=18"></script>
 </body>
 </html>

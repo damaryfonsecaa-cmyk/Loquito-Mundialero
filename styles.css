@@ -419,3 +419,112 @@ footer{max-width:1280px;margin:20px auto;color:var(--muted);padding:0 18px}
 @media(max-width:700px){
   .teamsGrid{grid-template-columns:1fr !important}
 }
+
+/* v18: llaves estables */
+.posterBracket,.posterTop,.posterMain,.posterBottom,.posterSide,.posterCenter{
+  display:none !important;
+}
+.worldChampionPanel{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  background:linear-gradient(135deg,#fff8db,#ffffff);
+  border:2px solid #f1d27a;
+  border-radius:18px;
+  padding:18px;
+  margin:16px 0 20px;
+  box-shadow:0 6px 16px rgba(12,30,60,.08);
+}
+.wcTrophy{
+  font-size:58px;
+  filter:drop-shadow(0 6px 8px rgba(0,0,0,.18));
+}
+.wcChampionName{
+  font-size:30px;
+  font-weight:900;
+  color:#081a36;
+}
+.bracketBoard{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(220px,1fr));
+  gap:14px;
+  overflow-x:auto;
+  padding:12px 4px 22px;
+}
+.bracketColumn{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  min-width:220px;
+}
+.bracketColumn h3{
+  text-align:center;
+  margin:0;
+  padding:9px 10px;
+  background:#edf4ff;
+  border:1px solid #cfe0ff;
+  border-radius:999px;
+  font-size:14px;
+}
+.koCard{
+  background:white;
+  border:1px solid #d8e0ef;
+  border-radius:15px;
+  padding:10px;
+  box-shadow:0 4px 14px rgba(12,30,60,.06);
+  position:relative;
+}
+.koCard.done{
+  background:#f7fff9;
+  border-color:#9bd8ad;
+}
+.koCard::after{
+  content:"";
+  position:absolute;
+  right:-14px;
+  top:50%;
+  width:14px;
+  height:2px;
+  background:#cbd5e1;
+}
+.bracketColumn:last-child .koCard::after{
+  display:none;
+}
+.koMatchNo{
+  font-size:12px;
+  color:#52627a;
+  font-weight:900;
+  margin-bottom:6px;
+}
+.koTeam{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+  align-items:center;
+  padding:6px;
+  border-radius:10px;
+}
+.koTeam.winner{
+  background:#fff2b8;
+  font-weight:900;
+}
+.koScore{
+  font-weight:900;
+  min-width:26px;
+  text-align:center;
+}
+.koPending{
+  margin-top:5px;
+  color:#52627a;
+  font-size:12px;
+  text-align:center;
+}
+@media(max-width:900px){
+  .bracketBoard{
+    grid-template-columns:1fr;
+    overflow-x:visible;
+  }
+  .bracketColumn{min-width:0}
+  .koCard::after{display:none}
+}

@@ -170,7 +170,7 @@ function renderAll(){
   fillPhaseFilter();
   renderNextMatch();
   renderBracket();
-  renderPosterBracket();
+  renderBracketBoard();
   fillKoEditor();
   renderStats();
 }
@@ -665,6 +665,46 @@ function renderStats(){
   renderParticipantStatsTable();
 }
 
+
+function renderStableKoCard(m){
+  const res = matchWinnerLoser(m);
+  const winner = res.winner;
+  const winA = winner && winner.name === m.teamA;
+  const winB = winner && winner.name === m.teamB;
+  return `<div class="koCard ${winner ? "done" : ""}">
+    <div class="koMatchNo">#${m.matchNumber ?? ""} · ${esc(m.group || "")}</div>
+    <div class="koTeam ${winA ? "winner" : ""}">
+      <span>${flagImg(m.flagCodeA,m.teamA)} ${esc(m.teamA)}</span>
+      <span class="koScore">${m.realA ?? ""}</span>
+    </div>
+    <div class="koTeam ${winB ? "winner" : ""}">
+      <span>${flagImg(m.flagCodeB,m.teamB)} ${esc(m.teamB)}</span>
+      <span class="koScore">${m.realB ?? ""}</span>
+    </div>
+    <div class="koPending">${winner ? "Avanza: " + esc(winner.name) : "Pendiente"}</div>
+  </div>`;
+}
+function renderBracketBoard(){
+  const board = $("bracketBoard");
+  if(!board) return;
+  const rounds = ["Dieciseisavos","Octavos","Cuartos","Semifinal","Tercer lugar","Final"];
+  board.innerHTML = rounds.map(round => {
+    const ms = matches
+      .filter(m => m.group === round)
+      .sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999));
+    return `<div class="bracketColumn">
+      <h3>${esc(round)}</h3>
+      ${ms.length ? ms.map(renderStableKoCard).join("") : `<p class="muted">Sin partidos</p>`}
+    </div>`;
+  }).join("");
+
+  const final = matches.find(m => Number(m.matchNumber) === 104);
+  const champ = final ? matchWinnerLoser(final).winner : null;
+  if($("championName")){
+    $("championName").innerHTML = champ ? `${flagImg(champ.code,champ.name)} ${esc(champ.name)}` : "?";
+  }
+}
+
 document.querySelectorAll("nav button").forEach(btn => {
   btn.addEventListener("click", () => {
     
@@ -890,6 +930,46 @@ function renderMiniGroups(){
   const mid = Math.ceil(cards.length/2);
   top.innerHTML = cards.slice(0,mid).join("");
   bottom.innerHTML = cards.slice(mid).join("");
+}
+
+
+function renderStableKoCard(m){
+  const res = matchWinnerLoser(m);
+  const winner = res.winner;
+  const winA = winner && winner.name === m.teamA;
+  const winB = winner && winner.name === m.teamB;
+  return `<div class="koCard ${winner ? "done" : ""}">
+    <div class="koMatchNo">#${m.matchNumber ?? ""} · ${esc(m.group || "")}</div>
+    <div class="koTeam ${winA ? "winner" : ""}">
+      <span>${flagImg(m.flagCodeA,m.teamA)} ${esc(m.teamA)}</span>
+      <span class="koScore">${m.realA ?? ""}</span>
+    </div>
+    <div class="koTeam ${winB ? "winner" : ""}">
+      <span>${flagImg(m.flagCodeB,m.teamB)} ${esc(m.teamB)}</span>
+      <span class="koScore">${m.realB ?? ""}</span>
+    </div>
+    <div class="koPending">${winner ? "Avanza: " + esc(winner.name) : "Pendiente"}</div>
+  </div>`;
+}
+function renderBracketBoard(){
+  const board = $("bracketBoard");
+  if(!board) return;
+  const rounds = ["Dieciseisavos","Octavos","Cuartos","Semifinal","Tercer lugar","Final"];
+  board.innerHTML = rounds.map(round => {
+    const ms = matches
+      .filter(m => m.group === round)
+      .sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999));
+    return `<div class="bracketColumn">
+      <h3>${esc(round)}</h3>
+      ${ms.length ? ms.map(renderStableKoCard).join("") : `<p class="muted">Sin partidos</p>`}
+    </div>`;
+  }).join("");
+
+  const final = matches.find(m => Number(m.matchNumber) === 104);
+  const champ = final ? matchWinnerLoser(final).winner : null;
+  if($("championName")){
+    $("championName").innerHTML = champ ? `${flagImg(champ.code,champ.name)} ${esc(champ.name)}` : "?";
+  }
 }
 
 document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
