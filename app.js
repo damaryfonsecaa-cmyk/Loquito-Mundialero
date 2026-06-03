@@ -171,6 +171,7 @@ function renderAll(){
   renderNextMatch();
   renderBracket();
   renderBracketBoard();
+  renderFlagBracket();
   fillKoEditor();
   renderStats();
 }
@@ -705,6 +706,81 @@ function renderBracketBoard(){
   }
 }
 
+
+function shortTeamName(name){
+  if(!name) return "";
+  const clean = String(name).replace("Ganador partido ","G").replace("Perdedor partido ","P").replace("Grupo ","G");
+  if(clean.length <= 10) return clean;
+  return clean.slice(0,10);
+}
+function renderFlagOnlyMatch(m){
+  const {winner}=matchWinnerLoser(m);
+  const winA = winner && winner.name === m.teamA;
+  const winB = winner && winner.name === m.teamB;
+  return `<div class="flagOnlyMatch ${winner ? "done" : ""}" title="${esc(m.teamA)} vs ${esc(m.teamB)}">
+    <div class="flagOnlyNo">#${m.matchNumber ?? ""}</div>
+    <div class="flagOnlyTeam ${winA ? "winner" : ""}">
+      ${flagImg(m.flagCodeA,m.teamA)}
+      <span class="flagCodeText">${esc(shortTeamName(m.teamA))}</span>
+      <span class="flagOnlyScore">${m.realA ?? ""}</span>
+    </div>
+    <div class="flagOnlyTeam ${winB ? "winner" : ""}">
+      ${flagImg(m.flagCodeB,m.teamB)}
+      <span class="flagCodeText">${esc(shortTeamName(m.teamB))}</span>
+      <span class="flagOnlyScore">${m.realB ?? ""}</span>
+    </div>
+  </div>`;
+}
+function renderRoundBlock(title, nums){
+  const ms = nums.map(n => matches.find(m => Number(m.matchNumber) === n)).filter(Boolean);
+  return `<div class="flagRoundBlock"><h5>${esc(title)}</h5>${ms.map(renderFlagOnlyMatch).join("")}</div>`;
+}
+function renderFlagBracket(){
+  const upper = $("upperFlagBracket"), lower = $("lowerFlagBracket");
+  if(!upper || !lower) return;
+
+  upper.innerHTML = [
+    renderRoundBlock("16avos", [73,74,75,76]),
+    renderRoundBlock("Octavos", [89,90,91,92]),
+    renderRoundBlock("Cuartos", [97,99]),
+    renderRoundBlock("Semi", [101])
+  ].join("");
+
+  lower.innerHTML = [
+    renderRoundBlock("16avos", [77,78,79,80,81,82,83,84,85,86,87,88]),
+    renderRoundBlock("Octavos", [93,94,95,96]),
+    renderRoundBlock("Cuartos", [98,100]),
+    renderRoundBlock("Semi", [102])
+  ].join("");
+
+  const final = matches.find(m => Number(m.matchNumber) === 104);
+  const third = matches.find(m => Number(m.matchNumber) === 103);
+  const champ = final ? matchWinnerLoser(final).winner : null;
+
+  if($("championName")){
+    $("championName").innerHTML = champ ? `${flagImg(champ.code,champ.name)} ${esc(champ.name)}` : "?";
+  }
+  if($("finalFlagCard")) $("finalFlagCard").innerHTML = final ? renderFlagOnlyMatch(final) : "";
+  if($("thirdFlagCard")) $("thirdFlagCard").innerHTML = third ? renderFlagOnlyMatch(third) : "";
+
+  renderFlagGroups();
+}
+function renderFlagGroups(){
+  const wrap = $("flagGroups");
+  if(!wrap) return;
+  const groupMatches = matches.filter(m => /^Grupo /.test(m.group||""));
+  const groups = {};
+  groupMatches.forEach(m => {
+    if(!groups[m.group]) groups[m.group] = new Map();
+    [[m.teamA,m.flagCodeA],[m.teamB,m.flagCodeB]].forEach(([t,c]) => {
+      if(t && !t.includes("Grupo") && !t.includes("Ganador") && !t.includes("Perdedor")) groups[m.group].set(t,c);
+    });
+  });
+  wrap.innerHTML = Object.entries(groups).sort((a,b)=>a[0].localeCompare(b[0])).map(([g,map]) => {
+    return `<div class="flagGroupCard"><span>${esc(g.replace("Grupo ","G"))}</span>${[...map.entries()].slice(0,4).map(([t,c])=>flagImg(c,t)).join("")}</div>`;
+  }).join("");
+}
+
 document.querySelectorAll("nav button").forEach(btn => {
   btn.addEventListener("click", () => {
     
@@ -970,6 +1046,81 @@ function renderBracketBoard(){
   if($("championName")){
     $("championName").innerHTML = champ ? `${flagImg(champ.code,champ.name)} ${esc(champ.name)}` : "?";
   }
+}
+
+
+function shortTeamName(name){
+  if(!name) return "";
+  const clean = String(name).replace("Ganador partido ","G").replace("Perdedor partido ","P").replace("Grupo ","G");
+  if(clean.length <= 10) return clean;
+  return clean.slice(0,10);
+}
+function renderFlagOnlyMatch(m){
+  const {winner}=matchWinnerLoser(m);
+  const winA = winner && winner.name === m.teamA;
+  const winB = winner && winner.name === m.teamB;
+  return `<div class="flagOnlyMatch ${winner ? "done" : ""}" title="${esc(m.teamA)} vs ${esc(m.teamB)}">
+    <div class="flagOnlyNo">#${m.matchNumber ?? ""}</div>
+    <div class="flagOnlyTeam ${winA ? "winner" : ""}">
+      ${flagImg(m.flagCodeA,m.teamA)}
+      <span class="flagCodeText">${esc(shortTeamName(m.teamA))}</span>
+      <span class="flagOnlyScore">${m.realA ?? ""}</span>
+    </div>
+    <div class="flagOnlyTeam ${winB ? "winner" : ""}">
+      ${flagImg(m.flagCodeB,m.teamB)}
+      <span class="flagCodeText">${esc(shortTeamName(m.teamB))}</span>
+      <span class="flagOnlyScore">${m.realB ?? ""}</span>
+    </div>
+  </div>`;
+}
+function renderRoundBlock(title, nums){
+  const ms = nums.map(n => matches.find(m => Number(m.matchNumber) === n)).filter(Boolean);
+  return `<div class="flagRoundBlock"><h5>${esc(title)}</h5>${ms.map(renderFlagOnlyMatch).join("")}</div>`;
+}
+function renderFlagBracket(){
+  const upper = $("upperFlagBracket"), lower = $("lowerFlagBracket");
+  if(!upper || !lower) return;
+
+  upper.innerHTML = [
+    renderRoundBlock("16avos", [73,74,75,76]),
+    renderRoundBlock("Octavos", [89,90,91,92]),
+    renderRoundBlock("Cuartos", [97,99]),
+    renderRoundBlock("Semi", [101])
+  ].join("");
+
+  lower.innerHTML = [
+    renderRoundBlock("16avos", [77,78,79,80,81,82,83,84,85,86,87,88]),
+    renderRoundBlock("Octavos", [93,94,95,96]),
+    renderRoundBlock("Cuartos", [98,100]),
+    renderRoundBlock("Semi", [102])
+  ].join("");
+
+  const final = matches.find(m => Number(m.matchNumber) === 104);
+  const third = matches.find(m => Number(m.matchNumber) === 103);
+  const champ = final ? matchWinnerLoser(final).winner : null;
+
+  if($("championName")){
+    $("championName").innerHTML = champ ? `${flagImg(champ.code,champ.name)} ${esc(champ.name)}` : "?";
+  }
+  if($("finalFlagCard")) $("finalFlagCard").innerHTML = final ? renderFlagOnlyMatch(final) : "";
+  if($("thirdFlagCard")) $("thirdFlagCard").innerHTML = third ? renderFlagOnlyMatch(third) : "";
+
+  renderFlagGroups();
+}
+function renderFlagGroups(){
+  const wrap = $("flagGroups");
+  if(!wrap) return;
+  const groupMatches = matches.filter(m => /^Grupo /.test(m.group||""));
+  const groups = {};
+  groupMatches.forEach(m => {
+    if(!groups[m.group]) groups[m.group] = new Map();
+    [[m.teamA,m.flagCodeA],[m.teamB,m.flagCodeB]].forEach(([t,c]) => {
+      if(t && !t.includes("Grupo") && !t.includes("Ganador") && !t.includes("Perdedor")) groups[m.group].set(t,c);
+    });
+  });
+  wrap.innerHTML = Object.entries(groups).sort((a,b)=>a[0].localeCompare(b[0])).map(([g,map]) => {
+    return `<div class="flagGroupCard"><span>${esc(g.replace("Grupo ","G"))}</span>${[...map.entries()].slice(0,4).map(([t,c])=>flagImg(c,t)).join("")}</div>`;
+  }).join("");
 }
 
 document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));

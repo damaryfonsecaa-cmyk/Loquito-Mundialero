@@ -99,9 +99,10 @@
   
 
 
+
 <section id="view-llaves" class="view">
   <h2>Llaves</h2>
-  <p>Cuadro eliminatorio visual. Puedes editar manualmente los equipos de eliminación directa y, al ingresar resultados, los ganadores avanzan.</p>
+  <p>Cuadro eliminatorio compacto: banderas, marcadores y avance automático. Puedes editar manualmente los equipos desde el panel admin.</p>
 
   <div class="adminOnly card">
     <h3>✍️ Editar equipos de eliminación</h3>
@@ -115,14 +116,39 @@
     </div>
   </div>
 
-  <div class="worldChampionPanel" id="worldChampionPanel">
-    <div class="wcTrophy">🏆</div>
-    <div>
-      <div class="muted">WORLD CHAMPIONS</div>
-      <div id="championName" class="wcChampionName">?</div>
+  <div class="flagBracket">
+    <div class="flagBracketHeader">
+      <h3>FIFA WORLD CUP</h3>
+      <div class="wcTrophy">🏆</div>
+      <div class="championMini">
+        <span>WORLD CHAMPIONS</span>
+        <strong id="championName">?</strong>
+      </div>
     </div>
+
+    <div class="flagBracketMain">
+      <div class="flagHalf">
+        <h4>Llave superior</h4>
+        <div id="upperFlagBracket" class="flagRounds"></div>
+      </div>
+
+      <div class="flagFinalCenter">
+        <div class="finalTitle">FINAL</div>
+        <div id="finalFlagCard"></div>
+        <div id="thirdFlagCard" class="thirdMini"></div>
+      </div>
+
+      <div class="flagHalf">
+        <h4>Llave inferior</h4>
+        <div id="lowerFlagBracket" class="flagRounds"></div>
+      </div>
+    </div>
+
+    <h4 class="groupsTitle">GRUPOS</h4>
+    <div id="flagGroups" class="flagGroups"></div>
   </div>
 
+  <h3>Vista detallada por rondas</h3>
   <div class="bracketBoard" id="bracketBoard"></div>
 </section>
 
@@ -190,6 +216,6 @@
   <small>Horarios en Chile · Fechas ajustadas a America/Santiago.</small>
 </footer>
 
-<script type="module" src="app.js?v=18"></script>
+<script type="module" src="app.js?v=19"></script>
 </body>
 </html>
