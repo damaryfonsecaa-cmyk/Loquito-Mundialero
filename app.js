@@ -28,6 +28,26 @@ let predictionDrafts = {};
 const TEAM_FLAGS = {"Mexico":"mx","South Africa":"za","South Korea":"kr","Czech Republic":"cz","Canada":"ca","Bosnia & Herzegovina":"ba","USA":"us","Paraguay":"py","Qatar":"qa","Switzerland":"ch","Brazil":"br","Morocco":"ma","Haiti":"ht","Scotland":"gb-sct","Australia":"au","Turkey":"tr","Germany":"de","Curacao":"cw","Netherlands":"nl","Japan":"jp","Ivory Coast":"ci","Ecuador":"ec","Sweden":"se","Tunisia":"tn","Spain":"es","Cape Verde":"cv","Belgium":"be","Egypt":"eg","Saudi Arabia":"sa","Uruguay":"uy","Iran":"ir","New Zealand":"nz","France":"fr","Senegal":"sn","Iraq":"iq","Norway":"no","Argentina":"ar","Algeria":"dz","Austria":"at","Jordan":"jo","Portugal":"pt","DR Congo":"cd","England":"gb-eng","Croatia":"hr","Ghana":"gh","Panama":"pa","Uzbekistan":"uz","Colombia":"co","Chile":"cl"};
 const KO_NEXT = {"match073":["match090","A"],"match075":["match090","B"],"match074":["match089","A"],"match077":["match089","B"],"match076":["match091","A"],"match078":["match091","B"],"match079":["match092","A"],"match080":["match092","B"],"match083":["match093","A"],"match084":["match093","B"],"match081":["match094","A"],"match082":["match094","B"],"match086":["match095","A"],"match088":["match095","B"],"match085":["match096","A"],"match087":["match096","B"],"match089":["match097","A"],"match090":["match097","B"],"match093":["match098","A"],"match094":["match098","B"],"match091":["match099","A"],"match092":["match099","B"],"match095":["match100","A"],"match096":["match100","B"],"match097":["match101","A"],"match098":["match101","B"],"match099":["match102","A"],"match100":["match102","B"],"match101":["match104","A","match103","A"],"match102":["match104","B","match103","B"]};
 
+const TEAM_FACTS = {
+  "Argentina": {titles:3, star:"Lionel Messi", fact:"Campeón vigente de Qatar 2022."},
+  "France": {titles:2, star:"Kylian Mbappé", fact:"Finalista de Qatar 2022."},
+  "Brazil": {titles:5, star:"Vinícius Jr.", fact:"Máximo campeón histórico del Mundial masculino."},
+  "Germany": {titles:4, star:"Jamal Musiala", fact:"Tetracampeón mundial."},
+  "Spain": {titles:1, star:"Pedri", fact:"Campeón mundial 2010."},
+  "Uruguay": {titles:2, star:"Federico Valverde", fact:"Bicampeón mundial."},
+  "England": {titles:1, star:"Jude Bellingham", fact:"Campeón mundial 1966."},
+  "Portugal": {titles:0, star:"Cristiano Ronaldo", fact:"Busca su primer título mundial."},
+  "Netherlands": {titles:0, star:"Virgil van Dijk", fact:"Tres veces finalista mundial."},
+  "Croatia": {titles:0, star:"Luka Modrić", fact:"Finalista 2018 y tercero en 2022."},
+  "Morocco": {titles:0, star:"Achraf Hakimi", fact:"Semifinalista en Qatar 2022."},
+  "Mexico": {titles:0, star:"Selección anfitriona", fact:"Abre el Mundial 2026 en Ciudad de México."},
+  "Canada": {titles:0, star:"Alphonso Davies", fact:"Una de las selecciones anfitrionas."},
+  "USA": {titles:0, star:"Christian Pulisic", fact:"Una de las selecciones anfitrionas."},
+  "Japan": {titles:0, star:"Takefusa Kubo", fact:"Selección asiática muy regular en Mundiales recientes."},
+  "Colombia": {titles:0, star:"Luis Díaz", fact:"Regresa con una generación competitiva."},
+  "Chile": {titles:0, star:"La Roja", fact:"Si aparece en la llave, la página puede destacarla manualmente."}
+};
+
 
 const $ = id => document.getElementById(id);
 
@@ -119,6 +139,7 @@ function renderAll(){
   renderNextMatch();
   renderBracket();
   fillKoEditor();
+  renderStats();
 }
 
 function renderRanking(){
@@ -333,9 +354,25 @@ function renderTeams(){
     teams[name].games++;
     if(!teams[name].note) teams[name].note = note;
   }));
-  $("teamsGrid").innerHTML = Object.values(teams).sort((a,b)=>a.name.localeCompare(b.name)).map(t => `
-    <div class="teamCard"><div class="bigFlag">${flagImg(t.code,t.name)}</div><h3>${esc(t.name)}</h3><div class="muted">${t.games} partidos cargados</div><p>${esc(t.note || "Participante del Mundial 2026.")}</p></div>
-  `).join("");
+  const stats = Object.fromEntries(teamTournamentStats().map(t=>[t.name,t]));
+  $("teamsGrid").innerHTML = Object.values(teams).sort((a,b)=>a.name.localeCompare(b.name)).map(t => {
+    const f = TEAM_FACTS[t.name] || {};
+    const st = stats[t.name] || {gf:0,ga:0,played:0,wins:0,draws:0,losses:0};
+    return `<div class="teamCard">
+      <div class="bigFlag">${flagImg(t.code,t.name)}</div>
+      <h3>${esc(t.name)}</h3>
+      <div class="teamMeta">
+        <span class="chip">🏆 ${f.titles ?? 0} Mundiales</span>
+        <span class="chip">⚽ ${st.gf} GF</span>
+        <span class="chip">🥅 ${st.ga} GC</span>
+      </div>
+      <ul class="teamFactList">
+        <li><strong>Jugador/figura:</strong> ${esc(f.star || "Por definir")}</li>
+        <li><strong>Dato:</strong> ${esc(f.fact || t.note || "Participante del Mundial 2026.")}</li>
+        <li><strong>Registro en torneo:</strong> ${st.wins}G - ${st.draws}E - ${st.losses}P</li>
+      </ul>
+    </div>`;
+  }).join("");
 }
 function fillSelects(){
   const participantOptions = participants.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join("");
@@ -458,6 +495,114 @@ function fillKoEditor(){
   fillKoInputs();
 }
 
+
+function playedMatches(){
+  return matches.filter(m => m.realA !== "" && m.realB !== "" && m.realA != null && m.realB != null);
+}
+function lastPlayedMatch(){
+  const played = playedMatches();
+  return played.sort((a,b)=>(b.matchNumber||0)-(a.matchNumber||0))[0];
+}
+function predictionResultType(pred, match){
+  if(!match) return "none";
+  if(match.realA === "" || match.realB === "" || match.realA == null || match.realB == null) return "pending";
+  if(Number(pred.goalsA) === Number(match.realA) && Number(pred.goalsB) === Number(match.realB)) return "exact";
+  return winner(pred.goalsA,pred.goalsB) === winner(match.realA,match.realB) ? "winner" : "miss";
+}
+function participantDetailedStats(participantId){
+  const ps = predictions.filter(p => p.participantId === participantId);
+  let exact = 0, winnerOnly = 0, points = 0;
+  ps.forEach(p => {
+    const m = matches.find(x => x.id === p.matchId);
+    const type = predictionResultType(p,m);
+    if(type === "exact") exact++;
+    if(type === "winner") winnerOnly++;
+    if(m) points += pointsFor(p,m);
+  });
+  return {exact, winnerOnly, points, count: ps.length};
+}
+function teamTournamentStats(){
+  const map = {};
+  function ensure(name, code){
+    if(!name || name.includes("Grupo") || name.includes("Ganador") || name.includes("Perdedor") || name.includes("partido")) return null;
+    if(!map[name]) map[name] = {name, code, gf:0, ga:0, played:0, wins:0, draws:0, losses:0};
+    if(code && !map[name].code) map[name].code = code;
+    return map[name];
+  }
+  playedMatches().forEach(m => {
+    const a = ensure(m.teamA,m.flagCodeA), b = ensure(m.teamB,m.flagCodeB);
+    if(!a || !b) return;
+    const ga = Number(m.realA), gb = Number(m.realB);
+    a.gf += ga; a.ga += gb; a.played++;
+    b.gf += gb; b.ga += ga; b.played++;
+    if(ga > gb){ a.wins++; b.losses++; }
+    else if(gb > ga){ b.wins++; a.losses++; }
+    else { a.draws++; b.draws++; }
+  });
+  return Object.values(map);
+}
+function renderLastHitBox(){
+  const box = $("lastHitBox");
+  if(!box) return;
+  const last = lastPlayedMatch();
+  if(!last){
+    box.innerHTML = `<h3>🎯 Aciertos del último partido</h3><p>Aún no hay resultados cargados.</p>`;
+    return;
+  }
+  const exact = [];
+  const winnerHits = [];
+  predictions.filter(p => p.matchId === last.id).forEach(p => {
+    const user = participants.find(x => x.id === p.participantId);
+    if(!user) return;
+    const type = predictionResultType(p,last);
+    if(type === "exact") exact.push(user.name);
+    if(type === "winner") winnerHits.push(user.name);
+  });
+  box.innerHTML = `
+    <h3>🎯 Aciertos del último partido</h3>
+    <div class="matchTitle">${matchLabel(last)}</div>
+    <div class="lastResultScore">${last.realA} - ${last.realB}</div>
+    <p><strong>Exactos:</strong></p>
+    <div class="hitList">${exact.length ? exact.map(n=>`<span class="hitPill">🏆 ${esc(n)}</span>`).join("") : `<span class="muted">Nadie acertó exacto.</span>`}</div>
+    <p><strong>Acertaron ganador/resultado:</strong></p>
+    <div class="hitList">${winnerHits.length ? winnerHits.map(n=>`<span class="hitPill">✅ ${esc(n)}</span>`).join("") : `<span class="muted">Nadie acertó el ganador/resultado.</span>`}</div>
+  `;
+}
+function renderTournamentStats(){
+  const wrap = $("tournamentStats");
+  if(!wrap) return;
+  const played = playedMatches();
+  const totalGoals = played.reduce((acc,m)=>acc+Number(m.realA||0)+Number(m.realB||0),0);
+  const maxGoalsMatch = played.slice().sort((a,b)=>(Number(b.realA)+Number(b.realB))-(Number(a.realA)+Number(a.realB)))[0];
+  const teams = teamTournamentStats();
+  const topScorerTeam = teams.slice().sort((a,b)=>b.gf-a.gf)[0];
+  const bestDefense = teams.filter(t=>t.played>0).sort((a,b)=>a.ga-b.ga || b.played-a.played)[0];
+  const totalExact = predictions.reduce((acc,p)=>{
+    const m = matches.find(x=>x.id===p.matchId);
+    return acc + (predictionResultType(p,m)==="exact" ? 1 : 0);
+  },0);
+  wrap.innerHTML = `
+    <div class="statCard"><div class="muted">Partidos jugados</div><div class="bigNumber">${played.length}</div></div>
+    <div class="statCard"><div class="muted">Goles totales</div><div class="bigNumber">${totalGoals}</div></div>
+    <div class="statCard"><div class="muted">Exactos acumulados</div><div class="bigNumber">${totalExact}</div></div>
+    <div class="statCard"><div class="muted">Partido con más goles</div>${maxGoalsMatch ? `<strong>${matchLabel(maxGoalsMatch)}</strong><div class="lastResultScore">${maxGoalsMatch.realA} - ${maxGoalsMatch.realB}</div>` : "Pendiente"}</div>
+    <div class="statCard"><div class="muted">Selección más goleadora</div>${topScorerTeam ? `<strong>${flagImg(topScorerTeam.code,topScorerTeam.name)} ${esc(topScorerTeam.name)}</strong><div class="bigNumber">${topScorerTeam.gf}</div>` : "Pendiente"}</div>
+    <div class="statCard"><div class="muted">Menos goles recibidos</div>${bestDefense ? `<strong>${flagImg(bestDefense.code,bestDefense.name)} ${esc(bestDefense.name)}</strong><div class="bigNumber">${bestDefense.ga}</div>` : "Pendiente"}</div>
+  `;
+}
+function renderParticipantStatsTable(){
+  const body = $("participantStatsBody");
+  if(!body) return;
+  const rows = participants.map(p => ({name:p.name, ...participantDetailedStats(p.id)}))
+    .sort((a,b)=>b.points-a.points || b.exact-a.exact || a.name.localeCompare(b.name));
+  body.innerHTML = rows.map(r => `<tr><td>${esc(r.name)}</td><td><strong>${r.points}</strong></td><td>${r.exact}</td><td>${r.winnerOnly}</td><td>${r.count}</td></tr>`).join("");
+}
+function renderStats(){
+  renderLastHitBox();
+  renderTournamentStats();
+  renderParticipantStatsTable();
+}
+
 document.querySelectorAll("nav button").forEach(btn => {
   btn.addEventListener("click", () => {
     
@@ -521,6 +666,114 @@ function fillKoEditor(){
   sel.innerHTML=matches.filter(isKnockout).sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999)).map(m=>`<option value="${m.id}">#${m.matchNumber} ${esc(m.group)} — ${esc(m.teamA)} vs ${esc(m.teamB)}</option>`).join("");
   if(old) sel.value=old;
   fillKoInputs();
+}
+
+
+function playedMatches(){
+  return matches.filter(m => m.realA !== "" && m.realB !== "" && m.realA != null && m.realB != null);
+}
+function lastPlayedMatch(){
+  const played = playedMatches();
+  return played.sort((a,b)=>(b.matchNumber||0)-(a.matchNumber||0))[0];
+}
+function predictionResultType(pred, match){
+  if(!match) return "none";
+  if(match.realA === "" || match.realB === "" || match.realA == null || match.realB == null) return "pending";
+  if(Number(pred.goalsA) === Number(match.realA) && Number(pred.goalsB) === Number(match.realB)) return "exact";
+  return winner(pred.goalsA,pred.goalsB) === winner(match.realA,match.realB) ? "winner" : "miss";
+}
+function participantDetailedStats(participantId){
+  const ps = predictions.filter(p => p.participantId === participantId);
+  let exact = 0, winnerOnly = 0, points = 0;
+  ps.forEach(p => {
+    const m = matches.find(x => x.id === p.matchId);
+    const type = predictionResultType(p,m);
+    if(type === "exact") exact++;
+    if(type === "winner") winnerOnly++;
+    if(m) points += pointsFor(p,m);
+  });
+  return {exact, winnerOnly, points, count: ps.length};
+}
+function teamTournamentStats(){
+  const map = {};
+  function ensure(name, code){
+    if(!name || name.includes("Grupo") || name.includes("Ganador") || name.includes("Perdedor") || name.includes("partido")) return null;
+    if(!map[name]) map[name] = {name, code, gf:0, ga:0, played:0, wins:0, draws:0, losses:0};
+    if(code && !map[name].code) map[name].code = code;
+    return map[name];
+  }
+  playedMatches().forEach(m => {
+    const a = ensure(m.teamA,m.flagCodeA), b = ensure(m.teamB,m.flagCodeB);
+    if(!a || !b) return;
+    const ga = Number(m.realA), gb = Number(m.realB);
+    a.gf += ga; a.ga += gb; a.played++;
+    b.gf += gb; b.ga += ga; b.played++;
+    if(ga > gb){ a.wins++; b.losses++; }
+    else if(gb > ga){ b.wins++; a.losses++; }
+    else { a.draws++; b.draws++; }
+  });
+  return Object.values(map);
+}
+function renderLastHitBox(){
+  const box = $("lastHitBox");
+  if(!box) return;
+  const last = lastPlayedMatch();
+  if(!last){
+    box.innerHTML = `<h3>🎯 Aciertos del último partido</h3><p>Aún no hay resultados cargados.</p>`;
+    return;
+  }
+  const exact = [];
+  const winnerHits = [];
+  predictions.filter(p => p.matchId === last.id).forEach(p => {
+    const user = participants.find(x => x.id === p.participantId);
+    if(!user) return;
+    const type = predictionResultType(p,last);
+    if(type === "exact") exact.push(user.name);
+    if(type === "winner") winnerHits.push(user.name);
+  });
+  box.innerHTML = `
+    <h3>🎯 Aciertos del último partido</h3>
+    <div class="matchTitle">${matchLabel(last)}</div>
+    <div class="lastResultScore">${last.realA} - ${last.realB}</div>
+    <p><strong>Exactos:</strong></p>
+    <div class="hitList">${exact.length ? exact.map(n=>`<span class="hitPill">🏆 ${esc(n)}</span>`).join("") : `<span class="muted">Nadie acertó exacto.</span>`}</div>
+    <p><strong>Acertaron ganador/resultado:</strong></p>
+    <div class="hitList">${winnerHits.length ? winnerHits.map(n=>`<span class="hitPill">✅ ${esc(n)}</span>`).join("") : `<span class="muted">Nadie acertó el ganador/resultado.</span>`}</div>
+  `;
+}
+function renderTournamentStats(){
+  const wrap = $("tournamentStats");
+  if(!wrap) return;
+  const played = playedMatches();
+  const totalGoals = played.reduce((acc,m)=>acc+Number(m.realA||0)+Number(m.realB||0),0);
+  const maxGoalsMatch = played.slice().sort((a,b)=>(Number(b.realA)+Number(b.realB))-(Number(a.realA)+Number(a.realB)))[0];
+  const teams = teamTournamentStats();
+  const topScorerTeam = teams.slice().sort((a,b)=>b.gf-a.gf)[0];
+  const bestDefense = teams.filter(t=>t.played>0).sort((a,b)=>a.ga-b.ga || b.played-a.played)[0];
+  const totalExact = predictions.reduce((acc,p)=>{
+    const m = matches.find(x=>x.id===p.matchId);
+    return acc + (predictionResultType(p,m)==="exact" ? 1 : 0);
+  },0);
+  wrap.innerHTML = `
+    <div class="statCard"><div class="muted">Partidos jugados</div><div class="bigNumber">${played.length}</div></div>
+    <div class="statCard"><div class="muted">Goles totales</div><div class="bigNumber">${totalGoals}</div></div>
+    <div class="statCard"><div class="muted">Exactos acumulados</div><div class="bigNumber">${totalExact}</div></div>
+    <div class="statCard"><div class="muted">Partido con más goles</div>${maxGoalsMatch ? `<strong>${matchLabel(maxGoalsMatch)}</strong><div class="lastResultScore">${maxGoalsMatch.realA} - ${maxGoalsMatch.realB}</div>` : "Pendiente"}</div>
+    <div class="statCard"><div class="muted">Selección más goleadora</div>${topScorerTeam ? `<strong>${flagImg(topScorerTeam.code,topScorerTeam.name)} ${esc(topScorerTeam.name)}</strong><div class="bigNumber">${topScorerTeam.gf}</div>` : "Pendiente"}</div>
+    <div class="statCard"><div class="muted">Menos goles recibidos</div>${bestDefense ? `<strong>${flagImg(bestDefense.code,bestDefense.name)} ${esc(bestDefense.name)}</strong><div class="bigNumber">${bestDefense.ga}</div>` : "Pendiente"}</div>
+  `;
+}
+function renderParticipantStatsTable(){
+  const body = $("participantStatsBody");
+  if(!body) return;
+  const rows = participants.map(p => ({name:p.name, ...participantDetailedStats(p.id)}))
+    .sort((a,b)=>b.points-a.points || b.exact-a.exact || a.name.localeCompare(b.name));
+  body.innerHTML = rows.map(r => `<tr><td>${esc(r.name)}</td><td><strong>${r.points}</strong></td><td>${r.exact}</td><td>${r.winnerOnly}</td><td>${r.count}</td></tr>`).join("");
+}
+function renderStats(){
+  renderLastHitBox();
+  renderTournamentStats();
+  renderParticipantStatsTable();
 }
 
 document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));

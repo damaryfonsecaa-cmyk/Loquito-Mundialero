@@ -17,7 +17,7 @@
   <button data-view="participantes">Participantes</button>
   <button data-view="partidos">Partidos</button>
   <button data-view="predicciones">Predicciones</button>
-  <button data-view="llaves">Llaves</button><button data-view="selecciones">Selecciones</button>
+  <button data-view="llaves">Llaves</button><button data-view="estadisticas">Estadísticas</button><button data-view="selecciones">Selecciones</button>
   <button data-view="admin">Admin</button>
 </nav>
 
@@ -52,7 +52,7 @@
     <div id="nextMatchBox" class="nextHero compact"></div>
     <div class="adminOnly card">
       <h3>⚡ Carga rápida</h3>
-      <p>104 PARTIDOS.</p>
+      <p>Carga/actualiza los 104 partidos del calendario. No borra participantes ni apuestas.</p>
       <button id="seedScheduleBtn" class="primary">Cargar calendario oficial 2026</button>
     </div>
     <div class="filters">
@@ -114,9 +114,21 @@
   <div class="bracketWrap" id="bracketWrap"></div>
 </section>
 
+
+<section id="view-estadisticas" class="view">
+  <h2>Estadísticas</h2>
+  <div id="lastHitBox" class="lastHitBox"></div>
+  <div id="tournamentStats" class="statsGrid"></div>
+  <h3>Rendimiento por participante</h3>
+  <table>
+    <thead><tr><th>Participante</th><th>Puntos</th><th>Exactos</th><th>Ganador/resultado</th><th>Predicciones</th></tr></thead>
+    <tbody id="participantStatsBody"></tbody>
+  </table>
+</section>
+
 <section id="view-selecciones" class="view">
     <h2>Selecciones</h2>
-    <p>DATOS MUNDIALEROS.</p>
+    <p>Datos ligeros para darle chiminuchina sin hacer pesada la página.</p>
     <div id="teamsGrid" class="teamsGrid"></div>
   </section>
 
@@ -154,6 +166,6 @@
   <small>Horarios en Chile · Fechas ajustadas a America/Santiago.</small>
 </footer>
 
-<script type="module" src="app.js?v=14"></script>
+<script type="module" src="app.js?v=15"></script>
 </body>
 </html>

@@ -102,3 +102,53 @@ footer{max-width:1280px;margin:20px auto;color:var(--muted);padding:0 18px}
 .bracketScore{font-weight:900;min-width:26px;text-align:center}
 .bracketArrow{color:#52627a;text-align:center;font-size:12px;margin-top:4px}
 @media(max-width:800px){.bracketRound{min-width:230px}}
+
+.statsGrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:12px;
+  margin:14px 0 20px;
+}
+.statCard{
+  background:white;
+  border:1px solid #d8e0ef;
+  border-radius:14px;
+  padding:14px;
+  box-shadow:0 4px 12px rgba(12,30,60,.05);
+}
+.statCard .bigNumber{
+  font-size:28px;
+  font-weight:900;
+  color:#0b5ed7;
+}
+.lastHitBox{
+  background:linear-gradient(135deg,#fff8db,#eef6ff);
+  border:1px solid #f1d27a;
+  border-radius:16px;
+  padding:16px;
+  margin:12px 0 18px;
+}
+.hitList{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:8px;
+}
+.hitPill{
+  background:white;
+  border:1px solid #d8e0ef;
+  border-radius:999px;
+  padding:7px 10px;
+  font-weight:800;
+}
+.teamFactList{
+  margin:8px 0 0;
+  padding-left:18px;
+  color:#344260;
+}
+.teamMeta{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin:8px 0;
+}
