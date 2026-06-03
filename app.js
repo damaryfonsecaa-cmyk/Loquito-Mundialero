@@ -138,6 +138,7 @@ function renderAll(){
   fillPhaseFilter();
   renderNextMatch();
   renderBracket();
+  renderPosterBracket();
   fillKoEditor();
   renderStats();
 }
@@ -603,6 +604,60 @@ function renderStats(){
   renderParticipantStatsTable();
 }
 
+
+function renderPosterMatch(m){
+  const {winner}=matchWinnerLoser(m);
+  const winA=winner && winner.name===m.teamA;
+  const winB=winner && winner.name===m.teamB;
+  return `<div class="posterMatch ${winner?"done":""}">
+    <div class="roundName">#${m.matchNumber ?? ""} · ${esc(m.group||"")}</div>
+    <div class="posterTeam ${winA?"winner":""}"><span>${flagImg(m.flagCodeA,m.teamA)} ${esc(m.teamA)}</span><span class="posterScore">${m.realA ?? ""}</span></div>
+    <div class="posterConnector"></div>
+    <div class="posterTeam ${winB?"winner":""}"><span>${flagImg(m.flagCodeB,m.teamB)} ${esc(m.teamB)}</span><span class="posterScore">${m.realB ?? ""}</span></div>
+  </div>`;
+}
+function renderPosterBracket(){
+  const left=$("posterLeft"), right=$("posterRight");
+  if(!left || !right) return;
+  const ko = matches.filter(m=>Number(m.matchNumber)>=73).sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999));
+  const leftNums = new Set([73,74,75,76,89,90,91,92,97,99,101]);
+  const rightNums = new Set([77,78,79,80,81,82,83,84,85,86,87,88,93,94,95,96,98,100,102]);
+  const leftMatches = ko.filter(m=>leftNums.has(Number(m.matchNumber)));
+  const rightMatches = ko.filter(m=>rightNums.has(Number(m.matchNumber)));
+  left.className = "posterSide posterRed leftLayout";
+  right.className = "posterSide posterBlue rightLayout";
+  left.innerHTML = leftMatches.map(renderPosterMatch).join("");
+  right.innerHTML = rightMatches.map(renderPosterMatch).join("");
+
+  const final = matches.find(m=>Number(m.matchNumber)===104);
+  const third = matches.find(m=>Number(m.matchNumber)===103);
+  const champ = final ? matchWinnerLoser(final).winner : null;
+  if($("championName")) $("championName").innerHTML = champ ? `${flagImg(champ.code,champ.name)} ${esc(champ.name)}` : "?";
+  if($("finalMini")) $("finalMini").innerHTML = final ? renderPosterMatch(final) : "";
+  if($("thirdPlaceBox")) $("thirdPlaceBox").innerHTML = third ? `<strong>🥉 Tercer lugar</strong>${renderPosterMatch(third)}` : "";
+
+  renderMiniGroups();
+}
+function renderMiniGroups(){
+  const top=$("miniGroupsTop"), bottom=$("miniGroupsBottom");
+  if(!top || !bottom) return;
+  const groupMatches = matches.filter(m => /^Grupo /.test(m.group||""));
+  const groups = {};
+  groupMatches.forEach(m=>{
+    if(!groups[m.group]) groups[m.group]=new Set();
+    [m.teamA,m.teamB].forEach(t=>{
+      if(t && !t.includes("Grupo") && !t.includes("Ganador") && !t.includes("Perdedor")) groups[m.group].add(t);
+    });
+  });
+  const cards = Object.entries(groups).sort((a,b)=>a[0].localeCompare(b[0])).map(([g,set])=>{
+    const teams=[...set].slice(0,4);
+    return `<div class="groupMini"><span>${esc(g.replace("Grupo ","G"))}</span>${teams.map(t=>flagImg(teamFlagCode(t),t)).join("")}</div>`;
+  });
+  const mid = Math.ceil(cards.length/2);
+  top.innerHTML = cards.slice(0,mid).join("");
+  bottom.innerHTML = cards.slice(mid).join("");
+}
+
 document.querySelectorAll("nav button").forEach(btn => {
   btn.addEventListener("click", () => {
     
@@ -774,6 +829,60 @@ function renderStats(){
   renderLastHitBox();
   renderTournamentStats();
   renderParticipantStatsTable();
+}
+
+
+function renderPosterMatch(m){
+  const {winner}=matchWinnerLoser(m);
+  const winA=winner && winner.name===m.teamA;
+  const winB=winner && winner.name===m.teamB;
+  return `<div class="posterMatch ${winner?"done":""}">
+    <div class="roundName">#${m.matchNumber ?? ""} · ${esc(m.group||"")}</div>
+    <div class="posterTeam ${winA?"winner":""}"><span>${flagImg(m.flagCodeA,m.teamA)} ${esc(m.teamA)}</span><span class="posterScore">${m.realA ?? ""}</span></div>
+    <div class="posterConnector"></div>
+    <div class="posterTeam ${winB?"winner":""}"><span>${flagImg(m.flagCodeB,m.teamB)} ${esc(m.teamB)}</span><span class="posterScore">${m.realB ?? ""}</span></div>
+  </div>`;
+}
+function renderPosterBracket(){
+  const left=$("posterLeft"), right=$("posterRight");
+  if(!left || !right) return;
+  const ko = matches.filter(m=>Number(m.matchNumber)>=73).sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999));
+  const leftNums = new Set([73,74,75,76,89,90,91,92,97,99,101]);
+  const rightNums = new Set([77,78,79,80,81,82,83,84,85,86,87,88,93,94,95,96,98,100,102]);
+  const leftMatches = ko.filter(m=>leftNums.has(Number(m.matchNumber)));
+  const rightMatches = ko.filter(m=>rightNums.has(Number(m.matchNumber)));
+  left.className = "posterSide posterRed leftLayout";
+  right.className = "posterSide posterBlue rightLayout";
+  left.innerHTML = leftMatches.map(renderPosterMatch).join("");
+  right.innerHTML = rightMatches.map(renderPosterMatch).join("");
+
+  const final = matches.find(m=>Number(m.matchNumber)===104);
+  const third = matches.find(m=>Number(m.matchNumber)===103);
+  const champ = final ? matchWinnerLoser(final).winner : null;
+  if($("championName")) $("championName").innerHTML = champ ? `${flagImg(champ.code,champ.name)} ${esc(champ.name)}` : "?";
+  if($("finalMini")) $("finalMini").innerHTML = final ? renderPosterMatch(final) : "";
+  if($("thirdPlaceBox")) $("thirdPlaceBox").innerHTML = third ? `<strong>🥉 Tercer lugar</strong>${renderPosterMatch(third)}` : "";
+
+  renderMiniGroups();
+}
+function renderMiniGroups(){
+  const top=$("miniGroupsTop"), bottom=$("miniGroupsBottom");
+  if(!top || !bottom) return;
+  const groupMatches = matches.filter(m => /^Grupo /.test(m.group||""));
+  const groups = {};
+  groupMatches.forEach(m=>{
+    if(!groups[m.group]) groups[m.group]=new Set();
+    [m.teamA,m.teamB].forEach(t=>{
+      if(t && !t.includes("Grupo") && !t.includes("Ganador") && !t.includes("Perdedor")) groups[m.group].add(t);
+    });
+  });
+  const cards = Object.entries(groups).sort((a,b)=>a[0].localeCompare(b[0])).map(([g,set])=>{
+    const teams=[...set].slice(0,4);
+    return `<div class="groupMini"><span>${esc(g.replace("Grupo ","G"))}</span>${teams.map(t=>flagImg(teamFlagCode(t),t)).join("")}</div>`;
+  });
+  const mid = Math.ceil(cards.length/2);
+  top.innerHTML = cards.slice(0,mid).join("");
+  bottom.innerHTML = cards.slice(mid).join("");
 }
 
 document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));

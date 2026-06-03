@@ -52,7 +52,7 @@
     <div id="nextMatchBox" class="nextHero compact"></div>
     <div class="adminOnly card">
       <h3>⚡ Carga rápida</h3>
-      <p>104 PARTIDOS.</p>
+      <p>Carga/actualiza los 104 partidos del calendario. No borra participantes ni apuestas.</p>
       <button id="seedScheduleBtn" class="primary">Cargar calendario oficial 2026</button>
     </div>
     <div class="filters">
@@ -97,9 +97,11 @@
   </section>
 
   
+
 <section id="view-llaves" class="view">
   <h2>Llaves</h2>
-  <p>Eliminación directa. Puedes editar manualmente los equipos y los ganadores avanzan al guardar resultados.</p>
+  <p>Cuadro eliminatorio visual. Puedes editar manualmente los equipos de eliminación directa y, al ingresar resultados, los ganadores avanzan.</p>
+
   <div class="adminOnly card">
     <h3>✍️ Editar equipos de eliminación</h3>
     <div class="grid">
@@ -111,24 +113,41 @@
       <button id="saveKoTeamsBtn" class="primary">Guardar equipos</button>
     </div>
   </div>
+
+  <div class="posterBracket" id="posterBracket">
+    <div class="posterTop">
+      <div class="miniGroups" id="miniGroupsTop"></div>
+      <div class="championBox">
+        <div class="championTitle">WORLD CHAMPIONS</div>
+        <div id="championName" class="championName">?</div>
+      </div>
+    </div>
+
+    <div class="posterMain">
+      <div class="posterSide posterRed" id="posterLeft"></div>
+
+      <div class="posterCenter">
+        <div class="trophy">🏆</div>
+        <div class="finalLabel">FINAL</div>
+        <div id="finalMini" class="finalMini"></div>
+      </div>
+
+      <div class="posterSide posterBlue" id="posterRight"></div>
+    </div>
+
+    <div class="posterBottom">
+      <div class="thirdPlaceBox" id="thirdPlaceBox"></div>
+      <div class="miniGroups" id="miniGroupsBottom"></div>
+    </div>
+  </div>
+
+  <h3>Vista compacta por rondas</h3>
   <div class="bracketWrap" id="bracketWrap"></div>
-</section>
-
-
-<section id="view-estadisticas" class="view">
-  <h2>Estadísticas</h2>
-  <div id="lastHitBox" class="lastHitBox"></div>
-  <div id="tournamentStats" class="statsGrid"></div>
-  <h3>Rendimiento por participante</h3>
-  <table>
-    <thead><tr><th>Participante</th><th>Puntos</th><th>Exactos</th><th>Ganador/resultado</th><th>Predicciones</th></tr></thead>
-    <tbody id="participantStatsBody"></tbody>
-  </table>
 </section>
 
 <section id="view-selecciones" class="view">
     <h2>Selecciones</h2>
-    <p>DATOS MUNDIALEROS.</p>
+    <p>Datos ligeros para darle chiminuchina sin hacer pesada la página.</p>
     <div id="teamsGrid" class="teamsGrid"></div>
   </section>
 
@@ -166,6 +185,6 @@
   <small>Horarios en Chile · Fechas ajustadas a America/Santiago.</small>
 </footer>
 
-<script type="module" src="app.js?v=15"></script>
+<script type="module" src="app.js?v=16"></script>
 </body>
 </html>
