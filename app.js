@@ -740,14 +740,14 @@ function renderFlagBracket(){
   if(!upper || !lower) return;
 
   upper.innerHTML = [
-    renderRoundBlock("16avos", [73,74,75,76]),
+    renderRoundBlock("16avos", [73,74,75,76,77,78,79,80]),
     renderRoundBlock("Octavos", [89,90,91,92]),
     renderRoundBlock("Cuartos", [97,99]),
     renderRoundBlock("Semi", [101])
   ].join("");
 
   lower.innerHTML = [
-    renderRoundBlock("16avos", [77,78,79,80,81,82,83,84,85,86,87,88]),
+    renderRoundBlock("16avos", [81,82,83,84,85,86,87,88]),
     renderRoundBlock("Octavos", [93,94,95,96]),
     renderRoundBlock("Cuartos", [98,100]),
     renderRoundBlock("Semi", [102])
@@ -1082,14 +1082,14 @@ function renderFlagBracket(){
   if(!upper || !lower) return;
 
   upper.innerHTML = [
-    renderRoundBlock("16avos", [73,74,75,76]),
+    renderRoundBlock("16avos", [73,74,75,76,77,78,79,80]),
     renderRoundBlock("Octavos", [89,90,91,92]),
     renderRoundBlock("Cuartos", [97,99]),
     renderRoundBlock("Semi", [101])
   ].join("");
 
   lower.innerHTML = [
-    renderRoundBlock("16avos", [77,78,79,80,81,82,83,84,85,86,87,88]),
+    renderRoundBlock("16avos", [81,82,83,84,85,86,87,88]),
     renderRoundBlock("Octavos", [93,94,95,96]),
     renderRoundBlock("Cuartos", [98,100]),
     renderRoundBlock("Semi", [102])
