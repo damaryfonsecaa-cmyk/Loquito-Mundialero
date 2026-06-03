@@ -25,6 +25,10 @@ let isAdmin = false;
 let showUpcomingOnly = false;
 let predictionDrafts = {};
 
+const TEAM_FLAGS = {"Mexico":"mx","South Africa":"za","South Korea":"kr","Czech Republic":"cz","Canada":"ca","Bosnia & Herzegovina":"ba","USA":"us","Paraguay":"py","Qatar":"qa","Switzerland":"ch","Brazil":"br","Morocco":"ma","Haiti":"ht","Scotland":"gb-sct","Australia":"au","Turkey":"tr","Germany":"de","Curacao":"cw","Netherlands":"nl","Japan":"jp","Ivory Coast":"ci","Ecuador":"ec","Sweden":"se","Tunisia":"tn","Spain":"es","Cape Verde":"cv","Belgium":"be","Egypt":"eg","Saudi Arabia":"sa","Uruguay":"uy","Iran":"ir","New Zealand":"nz","France":"fr","Senegal":"sn","Iraq":"iq","Norway":"no","Argentina":"ar","Algeria":"dz","Austria":"at","Jordan":"jo","Portugal":"pt","DR Congo":"cd","England":"gb-eng","Croatia":"hr","Ghana":"gh","Panama":"pa","Uzbekistan":"uz","Colombia":"co","Chile":"cl"};
+const KO_NEXT = {"match073":["match090","A"],"match075":["match090","B"],"match074":["match089","A"],"match077":["match089","B"],"match076":["match091","A"],"match078":["match091","B"],"match079":["match092","A"],"match080":["match092","B"],"match083":["match093","A"],"match084":["match093","B"],"match081":["match094","A"],"match082":["match094","B"],"match086":["match095","A"],"match088":["match095","B"],"match085":["match096","A"],"match087":["match096","B"],"match089":["match097","A"],"match090":["match097","B"],"match093":["match098","A"],"match094":["match098","B"],"match091":["match099","A"],"match092":["match099","B"],"match095":["match100","A"],"match096":["match100","B"],"match097":["match101","A"],"match098":["match101","B"],"match099":["match102","A"],"match100":["match102","B"],"match101":["match104","A","match103","A"],"match102":["match104","B","match103","B"]};
+
+
 const $ = id => document.getElementById(id);
 
 function currentBulkParticipantId(){
@@ -113,6 +117,8 @@ function renderAll(){
   fillSelects();
   fillPhaseFilter();
   renderNextMatch();
+  renderBracket();
+  fillKoEditor();
 }
 
 function renderRanking(){
@@ -211,6 +217,7 @@ function renderMatches(){
         realA: document.querySelector(`[data-real-a="${id}"]`).value,
         realB: document.querySelector(`[data-real-b="${id}"]`).value
       });
+      await advanceWinnerFrom(id);
     };
   });
   document.querySelectorAll("[data-clear-result]").forEach(btn => {
@@ -388,9 +395,135 @@ function downloadFullJson(){
   downloadText(`respaldo_loquito_mundialero_${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(payload,null,2), "application/json;charset=utf-8");
 }
 
+
+function isKnockout(m){ return Number(m.matchNumber) >= 73; }
+function teamFlagCode(name,fallback=""){ return TEAM_FLAGS[name] || fallback || ""; }
+function matchWinnerLoser(m){
+  if(!m || m.realA==="" || m.realB==="" || m.realA==null || m.realB==null) return {winner:null,loser:null};
+  const a=Number(m.realA), b=Number(m.realB);
+  if(a===b) return {winner:null,loser:null};
+  return a>b ? {winner:{name:m.teamA,code:m.flagCodeA},loser:{name:m.teamB,code:m.flagCodeB}} : {winner:{name:m.teamB,code:m.flagCodeB},loser:{name:m.teamA,code:m.flagCodeA}};
+}
+async function advanceWinnerFrom(matchId){
+  const m=matches.find(x=>x.id===matchId), map=KO_NEXT[matchId];
+  if(!m || !map) return;
+  const res=matchWinnerLoser(m);
+  if(!res.winner) return;
+  const up={};
+  if(map[1]==="A"){up.teamA=res.winner.name;up.flagCodeA=res.winner.code||teamFlagCode(res.winner.name);up.flagA="";}
+  else{up.teamB=res.winner.name;up.flagCodeB=res.winner.code||teamFlagCode(res.winner.name);up.flagB="";}
+  await updateDoc(doc(db,"matches",map[0]),up);
+  if(map[2] && res.loser){
+    const lp={};
+    if(map[3]==="A"){lp.teamA=res.loser.name;lp.flagCodeA=res.loser.code||teamFlagCode(res.loser.name);lp.flagA="";}
+    else{lp.teamB=res.loser.name;lp.flagCodeB=res.loser.code||teamFlagCode(res.loser.name);lp.flagB="";}
+    await updateDoc(doc(db,"matches",map[2]),lp);
+  }
+}
+function renderBracket(){
+  const wrap=$("bracketWrap"); if(!wrap) return;
+  const rounds=["Dieciseisavos","Octavos","Cuartos","Semifinal","Tercer lugar","Final"];
+  wrap.innerHTML=rounds.map(round=>{
+    const ms=matches.filter(m=>m.group===round).sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999));
+    if(!ms.length) return "";
+    return `<div class="bracketRound"><h3>${esc(round)}</h3>${ms.map(m=>{
+      const {winner}=matchWinnerLoser(m), winA=winner&&winner.name===m.teamA, winB=winner&&winner.name===m.teamB;
+      return `<div class="bracketMatch ${winner?"done":""}">
+        <div class="bracketMatchNumber">Partido #${m.matchNumber??""}</div>
+        <div class="bracketTeam ${winA?"winner":""}"><span>${flagImg(m.flagCodeA,m.teamA)} ${esc(m.teamA)}</span><span class="bracketScore">${m.realA??""}</span></div>
+        <div class="bracketTeam ${winB?"winner":""}"><span>${flagImg(m.flagCodeB,m.teamB)} ${esc(m.teamB)}</span><span class="bracketScore">${m.realB??""}</span></div>
+        <div class="bracketArrow">${winner ? "Avanza: "+esc(winner.name) : "Pendiente"}</div>
+      </div>`;
+    }).join("")}</div>`;
+  }).join("");
+}
+function fillFlagSelects(){
+  const opts='<option value="">Sin bandera</option>'+Object.entries(TEAM_FLAGS).sort((a,b)=>a[0].localeCompare(b[0])).map(([n,c])=>`<option value="${c}">${esc(n)}</option>`).join("");
+  if($("koFlagA") && !$("koFlagA").innerHTML) $("koFlagA").innerHTML=opts;
+  if($("koFlagB") && !$("koFlagB").innerHTML) $("koFlagB").innerHTML=opts;
+}
+function fillKoInputs(){
+  const m=matches.find(x=>x.id===$("koMatchSelect")?.value); if(!m) return;
+  if($("koTeamA")) $("koTeamA").value=m.teamA||"";
+  if($("koTeamB")) $("koTeamB").value=m.teamB||"";
+  fillFlagSelects();
+  if($("koFlagA")) $("koFlagA").value=m.flagCodeA||teamFlagCode(m.teamA)||"";
+  if($("koFlagB")) $("koFlagB").value=m.flagCodeB||teamFlagCode(m.teamB)||"";
+}
+function fillKoEditor(){
+  const sel=$("koMatchSelect"); if(!sel) return;
+  const old=sel.value;
+  sel.innerHTML=matches.filter(isKnockout).sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999)).map(m=>`<option value="${m.id}">#${m.matchNumber} ${esc(m.group)} — ${esc(m.teamA)} vs ${esc(m.teamB)}</option>`).join("");
+  if(old) sel.value=old;
+  fillKoInputs();
+}
+
 document.querySelectorAll("nav button").forEach(btn => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+    
+function isKnockout(m){ return Number(m.matchNumber) >= 73; }
+function teamFlagCode(name,fallback=""){ return TEAM_FLAGS[name] || fallback || ""; }
+function matchWinnerLoser(m){
+  if(!m || m.realA==="" || m.realB==="" || m.realA==null || m.realB==null) return {winner:null,loser:null};
+  const a=Number(m.realA), b=Number(m.realB);
+  if(a===b) return {winner:null,loser:null};
+  return a>b ? {winner:{name:m.teamA,code:m.flagCodeA},loser:{name:m.teamB,code:m.flagCodeB}} : {winner:{name:m.teamB,code:m.flagCodeB},loser:{name:m.teamA,code:m.flagCodeA}};
+}
+async function advanceWinnerFrom(matchId){
+  const m=matches.find(x=>x.id===matchId), map=KO_NEXT[matchId];
+  if(!m || !map) return;
+  const res=matchWinnerLoser(m);
+  if(!res.winner) return;
+  const up={};
+  if(map[1]==="A"){up.teamA=res.winner.name;up.flagCodeA=res.winner.code||teamFlagCode(res.winner.name);up.flagA="";}
+  else{up.teamB=res.winner.name;up.flagCodeB=res.winner.code||teamFlagCode(res.winner.name);up.flagB="";}
+  await updateDoc(doc(db,"matches",map[0]),up);
+  if(map[2] && res.loser){
+    const lp={};
+    if(map[3]==="A"){lp.teamA=res.loser.name;lp.flagCodeA=res.loser.code||teamFlagCode(res.loser.name);lp.flagA="";}
+    else{lp.teamB=res.loser.name;lp.flagCodeB=res.loser.code||teamFlagCode(res.loser.name);lp.flagB="";}
+    await updateDoc(doc(db,"matches",map[2]),lp);
+  }
+}
+function renderBracket(){
+  const wrap=$("bracketWrap"); if(!wrap) return;
+  const rounds=["Dieciseisavos","Octavos","Cuartos","Semifinal","Tercer lugar","Final"];
+  wrap.innerHTML=rounds.map(round=>{
+    const ms=matches.filter(m=>m.group===round).sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999));
+    if(!ms.length) return "";
+    return `<div class="bracketRound"><h3>${esc(round)}</h3>${ms.map(m=>{
+      const {winner}=matchWinnerLoser(m), winA=winner&&winner.name===m.teamA, winB=winner&&winner.name===m.teamB;
+      return `<div class="bracketMatch ${winner?"done":""}">
+        <div class="bracketMatchNumber">Partido #${m.matchNumber??""}</div>
+        <div class="bracketTeam ${winA?"winner":""}"><span>${flagImg(m.flagCodeA,m.teamA)} ${esc(m.teamA)}</span><span class="bracketScore">${m.realA??""}</span></div>
+        <div class="bracketTeam ${winB?"winner":""}"><span>${flagImg(m.flagCodeB,m.teamB)} ${esc(m.teamB)}</span><span class="bracketScore">${m.realB??""}</span></div>
+        <div class="bracketArrow">${winner ? "Avanza: "+esc(winner.name) : "Pendiente"}</div>
+      </div>`;
+    }).join("")}</div>`;
+  }).join("");
+}
+function fillFlagSelects(){
+  const opts='<option value="">Sin bandera</option>'+Object.entries(TEAM_FLAGS).sort((a,b)=>a[0].localeCompare(b[0])).map(([n,c])=>`<option value="${c}">${esc(n)}</option>`).join("");
+  if($("koFlagA") && !$("koFlagA").innerHTML) $("koFlagA").innerHTML=opts;
+  if($("koFlagB") && !$("koFlagB").innerHTML) $("koFlagB").innerHTML=opts;
+}
+function fillKoInputs(){
+  const m=matches.find(x=>x.id===$("koMatchSelect")?.value); if(!m) return;
+  if($("koTeamA")) $("koTeamA").value=m.teamA||"";
+  if($("koTeamB")) $("koTeamB").value=m.teamB||"";
+  fillFlagSelects();
+  if($("koFlagA")) $("koFlagA").value=m.flagCodeA||teamFlagCode(m.teamA)||"";
+  if($("koFlagB")) $("koFlagB").value=m.flagCodeB||teamFlagCode(m.teamB)||"";
+}
+function fillKoEditor(){
+  const sel=$("koMatchSelect"); if(!sel) return;
+  const old=sel.value;
+  sel.innerHTML=matches.filter(isKnockout).sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999)).map(m=>`<option value="${m.id}">#${m.matchNumber} ${esc(m.group)} — ${esc(m.teamA)} vs ${esc(m.teamB)}</option>`).join("");
+  if(old) sel.value=old;
+  fillKoInputs();
+}
+
+document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
     document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
     btn.classList.add("active");
     $(`view-${btn.dataset.view}`).classList.add("active");
@@ -402,6 +535,17 @@ $("phaseFilter")?.addEventListener("change", renderMatches);
 $("bulkParticipant")?.addEventListener("change", () => { rememberDrafts(); renderBulkPredictions(); });
 $("viewParticipant")?.addEventListener("change", renderPredictions);
 $("upcomingBtn")?.addEventListener("click", () => { showUpcomingOnly = !showUpcomingOnly; renderMatches(); });
+
+$("koMatchSelect")?.addEventListener("change", fillKoInputs);
+$("saveKoTeamsBtn")?.addEventListener("click", async ()=>{
+  if(!isAdmin) return alert("Solo admin.");
+  const id=$("koMatchSelect")?.value;
+  if(!id) return alert("Selecciona un partido.");
+  const a=$("koTeamA")?.value.trim()||"", b=$("koTeamB")?.value.trim()||"";
+  await updateDoc(doc(db,"matches",id),{teamA:a,teamB:b,flagCodeA:$("koFlagA")?.value||teamFlagCode(a),flagCodeB:$("koFlagB")?.value||teamFlagCode(b),flagA:"",flagB:""});
+  alert("Equipos de la llave actualizados.");
+});
+
 
 $("addParticipantBtn")?.addEventListener("click", async () => {
   if(!isAdmin) return alert("Solo admin.");

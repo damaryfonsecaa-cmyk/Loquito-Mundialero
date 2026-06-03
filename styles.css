@@ -90,3 +90,15 @@ footer{max-width:1280px;margin:20px auto;color:var(--muted);padding:0 18px}
 .predictionsListWrap{
   overflow:auto;
 }
+
+.bracketWrap{display:flex;gap:18px;overflow-x:auto;padding:12px 4px 20px}
+.bracketRound{min-width:260px;display:flex;flex-direction:column;gap:12px}
+.bracketRound h3{margin:0;text-align:center;background:#edf4ff;border:1px solid #cfe0ff;border-radius:999px;padding:8px}
+.bracketMatch{background:white;border:1px solid #d8e0ef;border-radius:14px;padding:10px;box-shadow:0 4px 12px rgba(12,30,60,.06)}
+.bracketMatch.done{border-color:#9bd8ad;background:#f7fff9}
+.bracketMatchNumber{color:#52627a;font-size:12px;font-weight:800;margin-bottom:6px}
+.bracketTeam{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:7px;border-radius:10px}
+.bracketTeam.winner{background:#fff8db;font-weight:900}
+.bracketScore{font-weight:900;min-width:26px;text-align:center}
+.bracketArrow{color:#52627a;text-align:center;font-size:12px;margin-top:4px}
+@media(max-width:800px){.bracketRound{min-width:230px}}

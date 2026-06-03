@@ -17,7 +17,7 @@
   <button data-view="participantes">Participantes</button>
   <button data-view="partidos">Partidos</button>
   <button data-view="predicciones">Predicciones</button>
-  <button data-view="selecciones">Selecciones</button>
+  <button data-view="llaves">Llaves</button><button data-view="selecciones">Selecciones</button>
   <button data-view="admin">Admin</button>
 </nav>
 
@@ -52,7 +52,7 @@
     <div id="nextMatchBox" class="nextHero compact"></div>
     <div class="adminOnly card">
       <h3>⚡ Carga rápida</h3>
-      <p>104 PARTIDOS.</p>
+      <p>Carga/actualiza los 104 partidos del calendario. No borra participantes ni apuestas.</p>
       <button id="seedScheduleBtn" class="primary">Cargar calendario oficial 2026</button>
     </div>
     <div class="filters">
@@ -96,9 +96,27 @@
     </table>
   </section>
 
-  <section id="view-selecciones" class="view">
+  
+<section id="view-llaves" class="view">
+  <h2>Llaves</h2>
+  <p>Eliminación directa. Puedes editar manualmente los equipos y los ganadores avanzan al guardar resultados.</p>
+  <div class="adminOnly card">
+    <h3>✍️ Editar equipos de eliminación</h3>
+    <div class="grid">
+      <select id="koMatchSelect"></select>
+      <input id="koTeamA" placeholder="Equipo A"/>
+      <input id="koTeamB" placeholder="Equipo B"/>
+      <select id="koFlagA"></select>
+      <select id="koFlagB"></select>
+      <button id="saveKoTeamsBtn" class="primary">Guardar equipos</button>
+    </div>
+  </div>
+  <div class="bracketWrap" id="bracketWrap"></div>
+</section>
+
+<section id="view-selecciones" class="view">
     <h2>Selecciones</h2>
-    <p>DATOS MUNDIALEROS.</p>
+    <p>Datos ligeros para darle chiminuchina sin hacer pesada la página.</p>
     <div id="teamsGrid" class="teamsGrid"></div>
   </section>
 
@@ -136,6 +154,6 @@
   <small>Horarios en Chile · Fechas ajustadas a America/Santiago.</small>
 </footer>
 
-<script type="module" src="app.js?v=13"></script>
+<script type="module" src="app.js?v=14"></script>
 </body>
 </html>
