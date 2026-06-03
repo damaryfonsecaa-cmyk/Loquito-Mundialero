@@ -68,6 +68,18 @@
 
   <section id="view-predicciones" class="view">
     <h2>Predicciones</h2>
+
+<div class="adminOnly card">
+  <h3>📥 Importar apuestas desde CSV</h3>
+  <p>Formato: <strong>participante;partido_numero;goles_a;goles_b</strong>. Puedes editarlo en Excel y guardarlo como CSV.</p>
+  <div class="formline">
+    <button id="downloadPredTemplateBtn" class="primary">Descargar plantilla CSV</button>
+    <input id="csvPredFile" type="file" accept=".csv,.txt"/>
+    <button id="importPredCsvBtn" class="primary">Importar apuestas</button>
+  </div>
+  <p class="muted">Si el participante no existe, se crea automáticamente. Si la apuesta ya existe, se actualiza.</p>
+</div>
+
     <div class="adminOnly card">
       <h3>📝 Cargar apuestas por participante</h3>
       <p>Elige un participante y guarda cada apuesta con el botón de su fila. También puedes usar “Guardar todas las apuestas”.</p>
@@ -216,6 +228,6 @@
   <small>Horarios en Chile · Fechas ajustadas a America/Santiago.</small>
 </footer>
 
-<script type="module" src="app.js?v=21"></script>
+<script type="module" src="app.js?v=22"></script>
 </body>
 </html>

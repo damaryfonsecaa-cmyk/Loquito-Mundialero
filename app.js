@@ -781,6 +781,56 @@ function renderFlagGroups(){
   }).join("");
 }
 
+
+function normalizeText(s){ return String(s ?? "").trim().toLowerCase(); }
+function parseCsvText(text){
+  const lines = text.replace(/^\ufeff/, "").split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  if(!lines.length) return [];
+  const sep = lines[0].includes(";") ? ";" : ",";
+  const headers = lines[0].split(sep).map(h=>normalizeText(h));
+  return lines.slice(1).map(line=>{
+    const parts=line.split(sep).map(x=>x.trim());
+    const row={};
+    headers.forEach((h,i)=>row[h]=parts[i] ?? "");
+    return row;
+  });
+}
+function buildPredTemplateCsv(){
+  const header="participante;partido_numero;goles_a;goles_b";
+  const name=participants[0]?.name || "Nombre participante";
+  const rows=matches.slice().sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999)).map(m=>`${name};${m.matchNumber ?? ""};;`);
+  return "\ufeff" + [header,...rows].join("\n");
+}
+async function getOrCreateParticipantByName(name){
+  const clean=String(name||"").trim();
+  if(!clean) throw new Error("Participante vacío.");
+  const found=participants.find(p=>normalizeText(p.name)===normalizeText(clean));
+  if(found) return found.id;
+  const ref=await addDoc(collection(db,"participants"), {name:clean, createdAt:serverTimestamp()});
+  return ref.id;
+}
+async function importPredictionsFromRows(rows){
+  let imported=0, skipped=0;
+  const cache={};
+  for(const row of rows){
+    const participantName=row.participante || row.nombre || row.participant || "";
+    const matchNo=Number(row.partido_numero || row.partido || row.match || row.match_number || "");
+    const goalsA=(row.goles_a ?? row.goalsa ?? row.a ?? row.local ?? "").toString().trim();
+    const goalsB=(row.goles_b ?? row.goalsb ?? row.b ?? row.visita ?? "").toString().trim();
+    if(!participantName || !matchNo || goalsA==="" || goalsB===""){ skipped++; continue; }
+    const match=matches.find(m=>Number(m.matchNumber)===matchNo);
+    if(!match){ skipped++; continue; }
+    const key=normalizeText(participantName);
+    if(!cache[key]) cache[key]=await getOrCreateParticipantByName(participantName);
+    const participantId=cache[key];
+    await setDoc(doc(db,"predictions",`${participantId}_${match.id}`), {
+      participantId, matchId:match.id, goalsA, goalsB, updatedAt:serverTimestamp()
+    });
+    imported++;
+  }
+  return {imported, skipped};
+}
+
 document.querySelectorAll("nav button").forEach(btn => {
   btn.addEventListener("click", () => {
     
@@ -1123,6 +1173,56 @@ function renderFlagGroups(){
   }).join("");
 }
 
+
+function normalizeText(s){ return String(s ?? "").trim().toLowerCase(); }
+function parseCsvText(text){
+  const lines = text.replace(/^\ufeff/, "").split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  if(!lines.length) return [];
+  const sep = lines[0].includes(";") ? ";" : ",";
+  const headers = lines[0].split(sep).map(h=>normalizeText(h));
+  return lines.slice(1).map(line=>{
+    const parts=line.split(sep).map(x=>x.trim());
+    const row={};
+    headers.forEach((h,i)=>row[h]=parts[i] ?? "");
+    return row;
+  });
+}
+function buildPredTemplateCsv(){
+  const header="participante;partido_numero;goles_a;goles_b";
+  const name=participants[0]?.name || "Nombre participante";
+  const rows=matches.slice().sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999)).map(m=>`${name};${m.matchNumber ?? ""};;`);
+  return "\ufeff" + [header,...rows].join("\n");
+}
+async function getOrCreateParticipantByName(name){
+  const clean=String(name||"").trim();
+  if(!clean) throw new Error("Participante vacío.");
+  const found=participants.find(p=>normalizeText(p.name)===normalizeText(clean));
+  if(found) return found.id;
+  const ref=await addDoc(collection(db,"participants"), {name:clean, createdAt:serverTimestamp()});
+  return ref.id;
+}
+async function importPredictionsFromRows(rows){
+  let imported=0, skipped=0;
+  const cache={};
+  for(const row of rows){
+    const participantName=row.participante || row.nombre || row.participant || "";
+    const matchNo=Number(row.partido_numero || row.partido || row.match || row.match_number || "");
+    const goalsA=(row.goles_a ?? row.goalsa ?? row.a ?? row.local ?? "").toString().trim();
+    const goalsB=(row.goles_b ?? row.goalsb ?? row.b ?? row.visita ?? "").toString().trim();
+    if(!participantName || !matchNo || goalsA==="" || goalsB===""){ skipped++; continue; }
+    const match=matches.find(m=>Number(m.matchNumber)===matchNo);
+    if(!match){ skipped++; continue; }
+    const key=normalizeText(participantName);
+    if(!cache[key]) cache[key]=await getOrCreateParticipantByName(participantName);
+    const participantId=cache[key];
+    await setDoc(doc(db,"predictions",`${participantId}_${match.id}`), {
+      participantId, matchId:match.id, goalsA, goalsB, updatedAt:serverTimestamp()
+    });
+    imported++;
+  }
+  return {imported, skipped};
+}
+
 document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
     document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
     btn.classList.add("active");
@@ -1208,6 +1308,26 @@ $("loginBtn")?.addEventListener("click", async () => {
 $("logoutBtn")?.addEventListener("click", () => signOut(auth));
 $("downloadCsvBtn")?.addEventListener("click", downloadPredictionsCsv);
 $("downloadJsonBtn")?.addEventListener("click", downloadFullJson);
+
+$("downloadPredTemplateBtn")?.addEventListener("click", () => {
+  const csv = buildPredTemplateCsv();
+  downloadText("plantilla_apuestas_loquito_mundialero.csv", csv, "text/csv;charset=utf-8");
+});
+$("importPredCsvBtn")?.addEventListener("click", async () => {
+  if(!isAdmin) return alert("Solo admin.");
+  const file = $("csvPredFile")?.files?.[0];
+  if(!file) return alert("Selecciona un archivo CSV o TXT.");
+  const rows = parseCsvText(await file.text());
+  if(!rows.length) return alert("El archivo no tiene filas para importar.");
+  if(!confirm(`Se importarán/actualizarán apuestas desde ${rows.length} filas. ¿Continuar?`)) return;
+  try{
+    const result = await importPredictionsFromRows(rows);
+    alert(`Importación lista ✅\nApuestas importadas: ${result.imported}\nFilas omitidas: ${result.skipped}`);
+  }catch(e){
+    alert("Error importando CSV: " + e.message);
+  }
+});
+
 
 onAuthStateChanged(auth, user => {
   isAdmin = !!user && user.email === ADMIN_EMAIL;
