@@ -302,3 +302,120 @@ footer{max-width:1280px;margin:20px auto;color:var(--muted);padding:0 18px}
   .championBox{width:100%}
   .trophy{font-size:82px}
 }
+
+/* v17 estadísticas y fichas */
+.statsGrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:14px;
+  margin:14px 0 24px;
+}
+.statCard{
+  background:white;
+  border:1px solid #d8e0ef;
+  border-radius:16px;
+  padding:16px;
+  box-shadow:0 4px 14px rgba(12,30,60,.06);
+}
+.statCard .bigNumber{
+  font-size:32px;
+  line-height:1;
+  font-weight:900;
+  color:#0b5ed7;
+  margin:6px 0;
+}
+.statCard strong{
+  font-size:17px;
+}
+.lastHitBox{
+  background:linear-gradient(135deg,#fff8db,#eef6ff);
+  border:1px solid #f1d27a;
+  border-radius:18px;
+  padding:18px;
+  margin:12px 0 20px;
+}
+.lastHitBox h3{margin-top:0}
+.hitList{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:8px 0 14px;
+}
+.hitPill{
+  background:white;
+  border:1px solid #d8e0ef;
+  border-radius:999px;
+  padding:7px 11px;
+  font-weight:800;
+  box-shadow:0 2px 8px rgba(12,30,60,.05);
+}
+.topRankingCards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:12px;
+  margin:12px 0 22px;
+}
+.topRankCard{
+  background:linear-gradient(135deg,#fff8db,#ffffff);
+  border:1px solid #f1d27a;
+  border-radius:16px;
+  padding:14px;
+}
+.topRankCard .rankPlace{
+  color:#52627a;
+  font-size:13px;
+  font-weight:900;
+}
+.topRankCard .rankName{
+  font-size:20px;
+  font-weight:900;
+}
+.teamsGrid{
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr)) !important;
+  align-items:stretch;
+}
+.teamCard{
+  padding:18px !important;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.teamCard h3{
+  font-size:22px;
+}
+.teamCard .bigFlag .flagImg, .teamCard > .bigFlag .flagImg{
+  width:44px;
+  height:30px;
+}
+.teamFactList{
+  margin:8px 0 0;
+  padding-left:18px;
+  color:#344260;
+}
+.teamMeta{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin:6px 0;
+}
+.teamHighlight{
+  background:#f8fbff;
+  border:1px solid #e3e9f3;
+  border-radius:12px;
+  padding:10px;
+}
+.progressBar{
+  background:#edf2f7;
+  border-radius:999px;
+  overflow:hidden;
+  height:8px;
+  margin-top:5px;
+}
+.progressBar > span{
+  display:block;
+  height:8px;
+  background:#2f7eea;
+}
+@media(max-width:700px){
+  .teamsGrid{grid-template-columns:1fr !important}
+}

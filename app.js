@@ -29,23 +29,55 @@ const TEAM_FLAGS = {"Mexico":"mx","South Africa":"za","South Korea":"kr","Czech 
 const KO_NEXT = {"match073":["match090","A"],"match075":["match090","B"],"match074":["match089","A"],"match077":["match089","B"],"match076":["match091","A"],"match078":["match091","B"],"match079":["match092","A"],"match080":["match092","B"],"match083":["match093","A"],"match084":["match093","B"],"match081":["match094","A"],"match082":["match094","B"],"match086":["match095","A"],"match088":["match095","B"],"match085":["match096","A"],"match087":["match096","B"],"match089":["match097","A"],"match090":["match097","B"],"match093":["match098","A"],"match094":["match098","B"],"match091":["match099","A"],"match092":["match099","B"],"match095":["match100","A"],"match096":["match100","B"],"match097":["match101","A"],"match098":["match101","B"],"match099":["match102","A"],"match100":["match102","B"],"match101":["match104","A","match103","A"],"match102":["match104","B","match103","B"]};
 
 const TEAM_FACTS = {
-  "Argentina": {titles:3, star:"Lionel Messi", fact:"Campeón vigente de Qatar 2022."},
-  "France": {titles:2, star:"Kylian Mbappé", fact:"Finalista de Qatar 2022."},
-  "Brazil": {titles:5, star:"Vinícius Jr.", fact:"Máximo campeón histórico del Mundial masculino."},
-  "Germany": {titles:4, star:"Jamal Musiala", fact:"Tetracampeón mundial."},
-  "Spain": {titles:1, star:"Pedri", fact:"Campeón mundial 2010."},
-  "Uruguay": {titles:2, star:"Federico Valverde", fact:"Bicampeón mundial."},
-  "England": {titles:1, star:"Jude Bellingham", fact:"Campeón mundial 1966."},
-  "Portugal": {titles:0, star:"Cristiano Ronaldo", fact:"Busca su primer título mundial."},
-  "Netherlands": {titles:0, star:"Virgil van Dijk", fact:"Tres veces finalista mundial."},
-  "Croatia": {titles:0, star:"Luka Modrić", fact:"Finalista 2018 y tercero en 2022."},
-  "Morocco": {titles:0, star:"Achraf Hakimi", fact:"Semifinalista en Qatar 2022."},
-  "Mexico": {titles:0, star:"Selección anfitriona", fact:"Abre el Mundial 2026 en Ciudad de México."},
-  "Canada": {titles:0, star:"Alphonso Davies", fact:"Una de las selecciones anfitrionas."},
-  "USA": {titles:0, star:"Christian Pulisic", fact:"Una de las selecciones anfitrionas."},
-  "Japan": {titles:0, star:"Takefusa Kubo", fact:"Selección asiática muy regular en Mundiales recientes."},
-  "Colombia": {titles:0, star:"Luis Díaz", fact:"Regresa con una generación competitiva."},
-  "Chile": {titles:0, star:"La Roja", fact:"Si aparece en la llave, la página puede destacarla manualmente."}
+  "Algeria": {titles:0, star:"Riyad Mahrez", best:"Octavos de final (2014)", fact:"Selección norteafricana históricamente competitiva."},
+  "Argentina": {titles:3, star:"Lionel Messi", best:"Campeón (1978, 1986, 2022)", fact:"Campeón vigente de Qatar 2022."},
+  "Australia": {titles:0, star:"Mathew Ryan", best:"Octavos de final", fact:"Representante habitual de Asia/Oceanía en Mundiales recientes."},
+  "Austria": {titles:0, star:"David Alaba", best:"3° lugar (1954)", fact:"Selección europea con tradición histórica mundialista."},
+  "Belgium": {titles:0, star:"Kevin De Bruyne", best:"3° lugar (2018)", fact:"Generación reciente de alto nivel internacional."},
+  "Bosnia & Herzegovina": {titles:0, star:"Edin Džeko", best:"Fase de grupos (2014)", fact:"Debutó en Mundiales en Brasil 2014."},
+  "Brazil": {titles:5, star:"Vinícius Jr.", best:"Campeón (5 veces)", fact:"Máximo campeón histórico del Mundial masculino."},
+  "Canada": {titles:0, star:"Alphonso Davies", best:"Fase de grupos", fact:"Una de las selecciones anfitrionas de 2026."},
+  "Cape Verde": {titles:0, star:"Ryan Mendes", best:"Debut mundialista", fact:"Una de las historias emergentes del torneo."},
+  "Colombia": {titles:0, star:"Luis Díaz", best:"Cuartos de final (2014)", fact:"Regresa con una generación muy competitiva."},
+  "Croatia": {titles:0, star:"Luka Modrić", best:"Subcampeón (2018)", fact:"Finalista 2018 y tercero en 2022."},
+  "Curacao": {titles:0, star:"Leandro Bacuna", best:"Debut mundialista", fact:"Una de las clasificadas más llamativas del torneo."},
+  "Czech Republic": {titles:0, star:"Patrik Schick", best:"Subcampeón como Checoslovaquia", fact:"Hereda una tradición futbolística histórica europea."},
+  "DR Congo": {titles:0, star:"Cédric Bakambu", best:"Participación histórica como Zaire", fact:"Regresa al foco mundial con una generación física y potente."},
+  "Ecuador": {titles:0, star:"Moisés Caicedo", best:"Octavos de final (2006)", fact:"Selección sudamericana joven e intensa."},
+  "Egypt": {titles:0, star:"Mohamed Salah", best:"Fase de grupos", fact:"Una potencia africana con gran historia continental."},
+  "England": {titles:1, star:"Jude Bellingham", best:"Campeón (1966)", fact:"Busca su segundo título mundial."},
+  "France": {titles:2, star:"Kylian Mbappé", best:"Campeón (1998, 2018)", fact:"Subcampeona del Mundial 2022."},
+  "Germany": {titles:4, star:"Jamal Musiala", best:"Campeón (4 veces)", fact:"Una de las selecciones más exitosas de la historia."},
+  "Ghana": {titles:0, star:"Mohammed Kudus", best:"Cuartos de final (2010)", fact:"Una de las selecciones africanas más recordadas en Mundiales modernos."},
+  "Haiti": {titles:0, star:"Duckens Nazon", best:"Fase de grupos (1974)", fact:"Regresa al gran escenario mundialista."},
+  "Iran": {titles:0, star:"Mehdi Taremi", best:"Fase de grupos", fact:"Selección asiática muy competitiva y experimentada."},
+  "Iraq": {titles:0, star:"Aymen Hussein", best:"Fase de grupos (1986)", fact:"Vuelve a una Copa del Mundo tras una larga espera."},
+  "Ivory Coast": {titles:0, star:"Franck Kessié", best:"Fase de grupos", fact:"Potencia africana con enorme talento físico y técnico."},
+  "Japan": {titles:0, star:"Takefusa Kubo", best:"Octavos de final", fact:"Selección asiática muy regular en Mundiales recientes."},
+  "Jordan": {titles:0, star:"Mousa Al-Taamari", best:"Debut mundialista", fact:"Una de las apariciones más interesantes de Asia."},
+  "Mexico": {titles:0, star:"Santiago Giménez", best:"Cuartos de final", fact:"Anfitrión: abre el Mundial 2026 en Ciudad de México."},
+  "Morocco": {titles:0, star:"Achraf Hakimi", best:"Semifinales (2022)", fact:"Primera selección africana en llegar a semifinales."},
+  "Netherlands": {titles:0, star:"Virgil van Dijk", best:"Subcampeón (3 veces)", fact:"Histórica selección europea que aún busca su primer Mundial."},
+  "New Zealand": {titles:0, star:"Chris Wood", best:"Fase de grupos", fact:"Representante oceánico de gran disciplina competitiva."},
+  "Norway": {titles:0, star:"Erling Haaland", best:"Octavos de final", fact:"Regresa con una generación ofensiva muy potente."},
+  "Panama": {titles:0, star:"Adalberto Carrasquilla", best:"Fase de grupos (2018)", fact:"Segunda etapa mundialista para una selección en crecimiento."},
+  "Paraguay": {titles:0, star:"Miguel Almirón", best:"Cuartos de final (2010)", fact:"Selección sudamericana históricamente difícil de enfrentar."},
+  "Portugal": {titles:0, star:"Bruno Fernandes", best:"3° lugar (1966)", fact:"Una generación que aspira a su primer Mundial."},
+  "Qatar": {titles:0, star:"Akram Afif", best:"Fase de grupos (2022)", fact:"Campeón asiático reciente y anfitrión del Mundial 2022."},
+  "Saudi Arabia": {titles:0, star:"Salem Al-Dawsari", best:"Octavos de final (1994)", fact:"Recordada por vencer a Argentina en Qatar 2022."},
+  "Scotland": {titles:0, star:"Andrew Robertson", best:"Fase de grupos", fact:"Regresa a una Copa del Mundo con una afición muy fiel."},
+  "Senegal": {titles:0, star:"Sadio Mané", best:"Cuartos de final (2002)", fact:"Una de las selecciones africanas más fuertes del siglo XXI."},
+  "South Africa": {titles:0, star:"Percy Tau", best:"Fase de grupos", fact:"Fue anfitriona del Mundial 2010."},
+  "South Korea": {titles:0, star:"Son Heung-min", best:"4° lugar (2002)", fact:"Una de las selecciones asiáticas más constantes."},
+  "Spain": {titles:1, star:"Lamine Yamal", best:"Campeón (2010)", fact:"Campeona mundial 2010 y potencia técnica europea."},
+  "Sweden": {titles:0, star:"Alexander Isak", best:"Subcampeón (1958)", fact:"Histórica selección europea con gran tradición."},
+  "Switzerland": {titles:0, star:"Granit Xhaka", best:"Cuartos de final", fact:"Selección europea muy ordenada y competitiva."},
+  "Tunisia": {titles:0, star:"Ellyes Skhiri", best:"Fase de grupos", fact:"Habitual representante africano en Copas del Mundo."},
+  "Turkey": {titles:0, star:"Hakan Çalhanoğlu", best:"3° lugar (2002)", fact:"Selección de gran intensidad y tradición competitiva."},
+  "Uruguay": {titles:2, star:"Federico Valverde", best:"Campeón (1930, 1950)", fact:"Bicampeón mundial y potencia histórica sudamericana."},
+  "USA": {titles:0, star:"Christian Pulisic", best:"3° lugar (1930)", fact:"Anfitrión y selección en crecimiento."},
+  "Uzbekistan": {titles:0, star:"Eldor Shomurodov", best:"Debut mundialista", fact:"Una de las grandes historias nuevas del Mundial 2026."},
+  "Chile": {titles:0, star:"Alexis Sánchez", best:"3° lugar (1962)", fact:"La Roja alcanzó su mejor resultado como anfitriona en 1962."}
 };
 
 
@@ -359,6 +391,7 @@ function renderTeams(){
   $("teamsGrid").innerHTML = Object.values(teams).sort((a,b)=>a.name.localeCompare(b.name)).map(t => {
     const f = TEAM_FACTS[t.name] || {};
     const st = stats[t.name] || {gf:0,ga:0,played:0,wins:0,draws:0,losses:0};
+    const dg = st.gf - st.ga;
     return `<div class="teamCard">
       <div class="bigFlag">${flagImg(t.code,t.name)}</div>
       <h3>${esc(t.name)}</h3>
@@ -366,9 +399,13 @@ function renderTeams(){
         <span class="chip">🏆 ${f.titles ?? 0} Mundiales</span>
         <span class="chip">⚽ ${st.gf} GF</span>
         <span class="chip">🥅 ${st.ga} GC</span>
+        <span class="chip">➕ ${dg} DG</span>
+      </div>
+      <div class="teamHighlight">
+        <strong>⭐ Figura:</strong> ${esc(f.star || "Por definir")}<br>
+        <strong>🎯 Mejor resultado:</strong> ${esc(f.best || "Por definir")}
       </div>
       <ul class="teamFactList">
-        <li><strong>Jugador/figura:</strong> ${esc(f.star || "Por definir")}</li>
         <li><strong>Dato:</strong> ${esc(f.fact || t.note || "Participante del Mundial 2026.")}</li>
         <li><strong>Registro en torneo:</strong> ${st.wins}G - ${st.draws}E - ${st.losses}P</li>
       </ul>
@@ -497,6 +534,7 @@ function fillKoEditor(){
 }
 
 
+
 function playedMatches(){
   return matches.filter(m => m.realA !== "" && m.realB !== "" && m.realA != null && m.realB != null);
 }
@@ -512,15 +550,18 @@ function predictionResultType(pred, match){
 }
 function participantDetailedStats(participantId){
   const ps = predictions.filter(p => p.participantId === participantId);
-  let exact = 0, winnerOnly = 0, points = 0;
+  let exact = 0, winnerOnly = 0, misses = 0, points = 0, resolved = 0;
   ps.forEach(p => {
     const m = matches.find(x => x.id === p.matchId);
     const type = predictionResultType(p,m);
+    if(type !== "pending" && type !== "none") resolved++;
     if(type === "exact") exact++;
     if(type === "winner") winnerOnly++;
+    if(type === "miss") misses++;
     if(m) points += pointsFor(p,m);
   });
-  return {exact, winnerOnly, points, count: ps.length};
+  const hitRate = resolved ? Math.round(((exact + winnerOnly) / resolved) * 100) : 0;
+  return {exact, winnerOnly, misses, points, count: ps.length, resolved, hitRate};
 }
 function teamTournamentStats(){
   const map = {};
@@ -547,7 +588,7 @@ function renderLastHitBox(){
   if(!box) return;
   const last = lastPlayedMatch();
   if(!last){
-    box.innerHTML = `<h3>🎯 Aciertos del último partido</h3><p>Aún no hay resultados cargados.</p>`;
+    box.innerHTML = `<h3>🎯 Aciertos del último partido</h3><p>Aún no hay resultados cargados. Cuando ingreses un resultado, aquí aparecerán quienes acertaron.</p>`;
     return;
   }
   const exact = [];
@@ -560,7 +601,7 @@ function renderLastHitBox(){
     if(type === "winner") winnerHits.push(user.name);
   });
   box.innerHTML = `
-    <h3>🎯 Aciertos del último partido</h3>
+    <h3>🎯 Aciertos del último partido jugado</h3>
     <div class="matchTitle">${matchLabel(last)}</div>
     <div class="lastResultScore">${last.realA} - ${last.realB}</div>
     <p><strong>Exactos:</strong></p>
@@ -574,6 +615,7 @@ function renderTournamentStats(){
   if(!wrap) return;
   const played = playedMatches();
   const totalGoals = played.reduce((acc,m)=>acc+Number(m.realA||0)+Number(m.realB||0),0);
+  const avgGoals = played.length ? (totalGoals/played.length).toFixed(2) : "0.00";
   const maxGoalsMatch = played.slice().sort((a,b)=>(Number(b.realA)+Number(b.realB))-(Number(a.realA)+Number(a.realB)))[0];
   const teams = teamTournamentStats();
   const topScorerTeam = teams.slice().sort((a,b)=>b.gf-a.gf)[0];
@@ -582,80 +624,45 @@ function renderTournamentStats(){
     const m = matches.find(x=>x.id===p.matchId);
     return acc + (predictionResultType(p,m)==="exact" ? 1 : 0);
   },0);
+  const leader = participants.map(p=>({name:p.name,...participantDetailedStats(p.id)})).sort((a,b)=>b.points-a.points)[0];
   wrap.innerHTML = `
-    <div class="statCard"><div class="muted">Partidos jugados</div><div class="bigNumber">${played.length}</div></div>
-    <div class="statCard"><div class="muted">Goles totales</div><div class="bigNumber">${totalGoals}</div></div>
-    <div class="statCard"><div class="muted">Exactos acumulados</div><div class="bigNumber">${totalExact}</div></div>
+    <div class="statCard"><div class="muted">Partidos jugados</div><div class="bigNumber">${played.length}</div><div>de ${matches.length || 104} cargados</div></div>
+    <div class="statCard"><div class="muted">Goles totales</div><div class="bigNumber">${totalGoals}</div><div>Promedio: ${avgGoals} por partido</div></div>
+    <div class="statCard"><div class="muted">Exactos acumulados</div><div class="bigNumber">${totalExact}</div><div>entre todos los participantes</div></div>
+    <div class="statCard"><div class="muted">Líder actual</div>${leader ? `<strong>${esc(leader.name)}</strong><div class="bigNumber">${leader.points}</div><div>${leader.exact} exactos</div>` : "Sin participantes"}</div>
     <div class="statCard"><div class="muted">Partido con más goles</div>${maxGoalsMatch ? `<strong>${matchLabel(maxGoalsMatch)}</strong><div class="lastResultScore">${maxGoalsMatch.realA} - ${maxGoalsMatch.realB}</div>` : "Pendiente"}</div>
     <div class="statCard"><div class="muted">Selección más goleadora</div>${topScorerTeam ? `<strong>${flagImg(topScorerTeam.code,topScorerTeam.name)} ${esc(topScorerTeam.name)}</strong><div class="bigNumber">${topScorerTeam.gf}</div>` : "Pendiente"}</div>
     <div class="statCard"><div class="muted">Menos goles recibidos</div>${bestDefense ? `<strong>${flagImg(bestDefense.code,bestDefense.name)} ${esc(bestDefense.name)}</strong><div class="bigNumber">${bestDefense.ga}</div>` : "Pendiente"}</div>
   `;
+}
+function renderTopRankingCards(){
+  const wrap = $("topRankingCards");
+  if(!wrap) return;
+  const rows = participants.map(p => ({name:p.name, ...participantDetailedStats(p.id)}))
+    .sort((a,b)=>b.points-a.points || b.exact-a.exact || a.name.localeCompare(b.name))
+    .slice(0,5);
+  wrap.innerHTML = rows.length ? rows.map((r,i)=>`
+    <div class="topRankCard">
+      <div class="rankPlace">${["🥇","🥈","🥉","🏅","🏅"][i]} ${i+1}° lugar</div>
+      <div class="rankName">${esc(r.name)}</div>
+      <div><strong>${r.points}</strong> puntos</div>
+      <div class="muted">${r.exact} exactos · ${r.hitRate}% acierto</div>
+      <div class="progressBar"><span style="width:${Math.min(100,r.hitRate)}%"></span></div>
+    </div>
+  `).join("") : `<p class="muted">Aún no hay participantes.</p>`;
 }
 function renderParticipantStatsTable(){
   const body = $("participantStatsBody");
   if(!body) return;
   const rows = participants.map(p => ({name:p.name, ...participantDetailedStats(p.id)}))
     .sort((a,b)=>b.points-a.points || b.exact-a.exact || a.name.localeCompare(b.name));
-  body.innerHTML = rows.map(r => `<tr><td>${esc(r.name)}</td><td><strong>${r.points}</strong></td><td>${r.exact}</td><td>${r.winnerOnly}</td><td>${r.count}</td></tr>`).join("");
+  body.innerHTML = rows.map(r => `<tr><td>${esc(r.name)}</td><td><strong>${r.points}</strong></td><td>${r.exact}</td><td>${r.winnerOnly}</td><td>${r.hitRate}%</td><td>${r.count}</td></tr>`).join("");
 }
 function renderStats(){
   renderLastHitBox();
   renderTournamentStats();
+  renderTopRankingCards();
   renderParticipantStatsTable();
-}
-
-
-function renderPosterMatch(m){
-  const {winner}=matchWinnerLoser(m);
-  const winA=winner && winner.name===m.teamA;
-  const winB=winner && winner.name===m.teamB;
-  return `<div class="posterMatch ${winner?"done":""}">
-    <div class="roundName">#${m.matchNumber ?? ""} · ${esc(m.group||"")}</div>
-    <div class="posterTeam ${winA?"winner":""}"><span>${flagImg(m.flagCodeA,m.teamA)} ${esc(m.teamA)}</span><span class="posterScore">${m.realA ?? ""}</span></div>
-    <div class="posterConnector"></div>
-    <div class="posterTeam ${winB?"winner":""}"><span>${flagImg(m.flagCodeB,m.teamB)} ${esc(m.teamB)}</span><span class="posterScore">${m.realB ?? ""}</span></div>
-  </div>`;
-}
-function renderPosterBracket(){
-  const left=$("posterLeft"), right=$("posterRight");
-  if(!left || !right) return;
-  const ko = matches.filter(m=>Number(m.matchNumber)>=73).sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999));
-  const leftNums = new Set([73,74,75,76,89,90,91,92,97,99,101]);
-  const rightNums = new Set([77,78,79,80,81,82,83,84,85,86,87,88,93,94,95,96,98,100,102]);
-  const leftMatches = ko.filter(m=>leftNums.has(Number(m.matchNumber)));
-  const rightMatches = ko.filter(m=>rightNums.has(Number(m.matchNumber)));
-  left.className = "posterSide posterRed leftLayout";
-  right.className = "posterSide posterBlue rightLayout";
-  left.innerHTML = leftMatches.map(renderPosterMatch).join("");
-  right.innerHTML = rightMatches.map(renderPosterMatch).join("");
-
-  const final = matches.find(m=>Number(m.matchNumber)===104);
-  const third = matches.find(m=>Number(m.matchNumber)===103);
-  const champ = final ? matchWinnerLoser(final).winner : null;
-  if($("championName")) $("championName").innerHTML = champ ? `${flagImg(champ.code,champ.name)} ${esc(champ.name)}` : "?";
-  if($("finalMini")) $("finalMini").innerHTML = final ? renderPosterMatch(final) : "";
-  if($("thirdPlaceBox")) $("thirdPlaceBox").innerHTML = third ? `<strong>🥉 Tercer lugar</strong>${renderPosterMatch(third)}` : "";
-
-  renderMiniGroups();
-}
-function renderMiniGroups(){
-  const top=$("miniGroupsTop"), bottom=$("miniGroupsBottom");
-  if(!top || !bottom) return;
-  const groupMatches = matches.filter(m => /^Grupo /.test(m.group||""));
-  const groups = {};
-  groupMatches.forEach(m=>{
-    if(!groups[m.group]) groups[m.group]=new Set();
-    [m.teamA,m.teamB].forEach(t=>{
-      if(t && !t.includes("Grupo") && !t.includes("Ganador") && !t.includes("Perdedor")) groups[m.group].add(t);
-    });
-  });
-  const cards = Object.entries(groups).sort((a,b)=>a[0].localeCompare(b[0])).map(([g,set])=>{
-    const teams=[...set].slice(0,4);
-    return `<div class="groupMini"><span>${esc(g.replace("Grupo ","G"))}</span>${teams.map(t=>flagImg(teamFlagCode(t),t)).join("")}</div>`;
-  });
-  const mid = Math.ceil(cards.length/2);
-  top.innerHTML = cards.slice(0,mid).join("");
-  bottom.innerHTML = cards.slice(mid).join("");
 }
 
 document.querySelectorAll("nav button").forEach(btn => {
