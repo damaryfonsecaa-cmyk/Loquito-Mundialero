@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>La polla del loquito 2026</title>
+  <title>Segunda Fase · Polla Mundial 2026</title>
   <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
 <header>
-  <h1>🏆 La polla del loquito 2026</h1>
-  <p>LA GRAN POLLA.</p>
+  <h1>🏆 COPA DEL MUNDO 2026</h1>
+  <p>SEGUNDA FASE · ELIMINATORIAS</p>
 </header>
 
 <nav>
@@ -17,18 +17,37 @@
   <button data-view="participantes">Participantes</button>
   <button data-view="partidos">Partidos</button>
   <button data-view="predicciones">Predicciones</button>
-  <button data-view="llaves">Llaves</button><button data-view="estadisticas">Estadísticas</button><button data-view="selecciones">Selecciones</button>
+  <button data-view="bases">Bases</button>
   <button data-view="admin">Admin</button>
 </nav>
 
 <main>
   <section id="view-clasificacion" class="view active">
-    <h2>Clasificación</h2>
+    <h2>Clasificación Segunda Fase</h2>
     <div id="nextMatchHero" class="nextHero"></div>
-    <div id="summaryCards" class="infoGrid"></div>
+    <div id="prizeBox" class="prizeStatsBox"></div>
+
+    <div class="card">
+      <h3>📌 Reglas de puntaje</h3>
+      <div class="rulesGrid">
+        <div><strong>3 puntos</strong><span>Resultado exacto considerando 90’ o 120’ si hay alargue.</span></div>
+        <div><strong>0 puntos</strong><span>Partido no apostado o resultado no exacto.</span></div>
+        <div><strong>Cierre</strong><span>Cada partido se puede apostar hasta 15 minutos antes del inicio.</span></div>
+      </div>
+    </div>
+
     <div id="podium" class="podium"></div>
     <table>
-      <thead><tr><th>#</th><th>Participante</th><th>Puntos</th><th>Predicciones</th></tr></thead>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Participante</th>
+          <th>Puntos</th>
+          <th>Exactos</th>
+          <th>Apuestas</th>
+          <th>Faltantes</th>
+        </tr>
+      </thead>
       <tbody id="rankingBody"></tbody>
     </table>
   </section>
@@ -36,32 +55,44 @@
   <section id="view-participantes" class="view">
     <h2>Participantes</h2>
     <div class="adminOnly card">
+      <h3>Agregar participante</h3>
       <div class="formline">
         <input id="participantName" placeholder="Nombre participante"/>
-        <button id="addParticipantBtn" class="primary">Agregar participante</button>
+        <button id="addParticipantBtn" class="primary">Agregar</button>
       </div>
     </div>
     <table>
-      <thead><tr><th>Nombre</th><th>Predicciones</th><th class="adminOnly">Acción</th></tr></thead>
+      <thead><tr><th>Nombre</th><th>Apuestas</th><th class="adminOnly">Acción</th></tr></thead>
       <tbody id="participantsBody"></tbody>
     </table>
   </section>
 
   <section id="view-partidos" class="view">
-    <h2>Partidos y resultados reales</h2>
-    <div id="nextMatchBox" class="nextHero compact"></div>
+    <h2>Partidos eliminatorios</h2>
     <div class="adminOnly card">
       <h3>⚡ Carga rápida</h3>
-      <p>104 PARTIDOS.</p>
-      <button id="seedScheduleBtn" class="primary">Cargar calendario oficial 2026</button>
+      <p>Carga los partidos desde 16avos hasta la final. No borra participantes ni apuestas.</p>
+      <button id="seedKoBtn" class="primary">Cargar/actualizar calendario eliminatorio</button>
     </div>
+
     <div class="filters">
       <input id="matchSearch" placeholder="Buscar equipo, fase o sede..."/>
       <select id="phaseFilter"><option value="">Todas las fases</option></select>
       <button id="upcomingBtn">Próximos</button>
     </div>
+
     <table>
-      <thead><tr><th>#</th><th>Fase</th><th>Partido</th><th>Fecha Chile</th><th>Sede</th><th>Resultado</th><th class="adminOnly">Editar</th></tr></thead>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Fase</th>
+          <th>Partido</th>
+          <th>Fecha Chile</th>
+          <th>Cierre apuestas</th>
+          <th>Resultado</th>
+          <th class="adminOnly">Editar</th>
+        </tr>
+      </thead>
       <tbody id="matchesBody"></tbody>
     </table>
   </section>
@@ -69,27 +100,27 @@
   <section id="view-predicciones" class="view">
     <h2>Predicciones</h2>
 
-<div class="adminOnly card">
-  <h3>📥 Importar apuestas desde CSV</h3>
-  <p>Formato: <strong>participante;partido_numero;goles_a;goles_b</strong>. Puedes editarlo en Excel y guardarlo como CSV.</p>
-  <div class="formline">
-    <button id="downloadPredTemplateBtn" class="primary">Descargar plantilla CSV</button>
-    <input id="csvPredFile" type="file" accept=".csv,.txt"/>
-    <button id="importPredCsvBtn" class="primary">Importar apuestas</button>
-  </div>
-  <p class="muted">Si el participante no existe, se crea automáticamente. Si la apuesta ya existe, se actualiza.</p>
-</div>
+    <div class="adminOnly card">
+      <h3>📥 Importar apuestas desde CSV</h3>
+      <p>Formato: <strong>participante;partido_numero;goles_a;goles_b</strong>.</p>
+      <div class="formline">
+        <button id="downloadTemplateBtn" class="primary">Descargar plantilla CSV</button>
+        <input id="csvFile" type="file" accept=".csv,.txt"/>
+        <button id="importCsvBtn" class="primary">Importar apuestas</button>
+      </div>
+      <p class="muted">Si el participante no existe, se crea automáticamente. Si la apuesta ya existe, se actualiza.</p>
+    </div>
 
     <div class="adminOnly card">
       <h3>📝 Cargar apuestas por participante</h3>
-      <p>Elige un participante y guarda cada apuesta con el botón de su fila. También puedes usar “Guardar todas las apuestas”.</p>
+      <p>Elige un participante, completa los resultados y guarda. Los partidos cerrados no permiten guardar apuesta.</p>
       <div class="formline">
         <select id="bulkParticipant"></select>
-        <button id="saveAllPredictionsBtn" class="primary">Guardar todas las apuestas</button>
+        <button id="saveAllPredictionsBtn" class="primary">Guardar todas las apuestas abiertas</button>
       </div>
       <div class="predictionsListWrap">
         <table>
-          <thead><tr><th>#</th><th>Fase</th><th>Partido</th><th>Fecha Chile</th><th>Apuesta</th><th>Guardar</th></tr></thead>
+          <thead><tr><th>#</th><th>Fase</th><th>Partido</th><th>Fecha Chile</th><th>Estado</th><th>Apuesta</th><th>Guardar</th></tr></thead>
           <tbody id="bulkPredictionsBody"></tbody>
         </table>
       </div>
@@ -97,8 +128,13 @@
 
     <div class="card">
       <h3>👀 Ver apuestas cargadas</h3>
-      <div class="formline">
-        <select id="viewParticipant"></select>
+      <div class="grid">
+        <select id="predictionViewMode">
+          <option value="match">Ver por partido</option>
+          <option value="participant">Ver por participante</option>
+        </select>
+        <select id="predictionMatchFilter"></select>
+        <select id="predictionParticipantFilter"></select>
       </div>
     </div>
 
@@ -108,126 +144,85 @@
     </table>
   </section>
 
-  
+  <section id="view-bases" class="view">
+    <h2>Bases Segunda Fase Polla Mundial</h2>
+    <div class="card bases">
+      <h3>💰 Premio</h3>
+      <ul>
+        <li>Cuota de inscripción: <strong>$5.000</strong>.</li>
+        <li>El pozo se divide en: <strong>1° lugar 70%</strong>, <strong>2° lugar 20%</strong> y <strong>3° lugar 10%</strong>.</li>
+      </ul>
 
+      <h3>⏱️ Plazo para apostar</h3>
+      <ul>
+        <li>Al ser fase eliminatoria, los resultados de cada partido se podrán agregar hasta <strong>15 minutos antes del inicio</strong>.</li>
+        <li>Será responsabilidad de cada participante indicar su resultado partido a partido.</li>
+        <li>Si una persona no entrega resultado para un partido, ese partido contará con <strong>0 puntos</strong>.</li>
+      </ul>
 
+      <h3>🎯 Puntaje</h3>
+      <ul>
+        <li>Resultado exacto: <strong>3 puntos</strong>.</li>
+        <li>Resultado no exacto: <strong>0 puntos</strong>.</li>
+        <li>El resultado final se considera en los <strong>90 minutos</strong> o en los <strong>120 minutos</strong> si hay alargue.</li>
+        <li>Si el partido llega a penales, el marcador válido es el que exista antes de la tanda de penales.</li>
+      </ul>
 
-<section id="view-llaves" class="view">
-  <h2>Llaves</h2>
-  <p>Cuadro eliminatorio compacto: banderas, marcadores y avance automático. Puedes editar manualmente los equipos desde el panel admin.</p>
-
-  <div class="adminOnly card">
-    <h3>✍️ Editar equipos de eliminación</h3>
-    <div class="grid">
-      <select id="koMatchSelect"></select>
-      <input id="koTeamA" placeholder="Equipo A"/>
-      <input id="koTeamB" placeholder="Equipo B"/>
-      <select id="koFlagA"></select>
-      <select id="koFlagB"></select>
-      <button id="saveKoTeamsBtn" class="primary">Guardar equipos</button>
+      <h3>📲 Carga de apuestas</h3>
+      <ul>
+        <li>Se creará un grupo de WhatsApp para coordinar la carga de resultados.</li>
+        <li>El domingo en la mañana se enviará una planilla para que cada persona indique sus apuestas.</li>
+        <li>El inicio de los dieciseisavos es el domingo 28/06.</li>
+      </ul>
     </div>
-  </div>
-
-  <div class="flagBracket">
-    <div class="flagBracketHeader">
-      <h3>FIFA WORLD CUP</h3>
-      <div class="wcTrophy">🏆</div>
-      <div class="championMini">
-        <span>WORLD CHAMPIONS</span>
-        <strong id="championName">?</strong>
-      </div>
-    </div>
-
-    <div class="flagBracketMain">
-      <div class="flagHalf">
-        <h4>Llave superior</h4>
-        <div id="upperFlagBracket" class="flagRounds"></div>
-      </div>
-
-      <div class="flagFinalCenter">
-        <div class="finalTitle">FINAL</div>
-        <div id="finalFlagCard"></div>
-        <div id="thirdFlagCard" class="thirdMini"></div>
-      </div>
-
-      <div class="flagHalf">
-        <h4>Llave inferior</h4>
-        <div id="lowerFlagBracket" class="flagRounds"></div>
-      </div>
-    </div>
-
-    <h4 class="groupsTitle">GRUPOS</h4>
-    <div id="flagGroups" class="flagGroups"></div>
-  </div>
-
-  <h3>Vista detallada por rondas</h3>
-  <div class="bracketBoard" id="bracketBoard"></div>
-</section>
-
-<section id="view-estadisticas" class="view">
-  <h2>Estadísticas</h2>
-  <div id="lastHitBox" class="lastHitBox"></div>
-  <div id="tournamentStats" class="statsGrid"></div>
-
-  <h3>🏅 Top clasificación</h3>
-  <div id="topRankingCards" class="topRankingCards"></div>
-
-  <h3>📊 Rendimiento por participante</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Participante</th>
-        <th>Puntos</th>
-        <th>Exactos</th>
-        <th>Ganador/resultado</th>
-        <th>% acierto</th>
-        <th>Predicciones</th>
-      </tr>
-    </thead>
-    <tbody id="participantStatsBody"></tbody>
-  </table>
-</section>
-
-<section id="view-selecciones" class="view">
-    <h2>Selecciones</h2>
-    <p>DATOS MUNDIALEROS.</p>
-    <div id="teamsGrid" class="teamsGrid"></div>
   </section>
 
   <section id="view-admin" class="view">
     <h2>Admin</h2>
-    <div id="loginBox" class="card">
+    <div class="card" id="adminBox">
       <p>Inicia sesión con el correo administrador autorizado.</p>
-      <input id="email" type="email" placeholder="Correo admin"/>
-      <input id="password" type="password" placeholder="Contraseña"/>
-      <button id="loginBtn" class="primary">Entrar</button>
-    </div>
-
-    <div id="adminBox" class="card hidden">
-      <p><strong>Sesión admin activa:</strong> <span id="adminEmail"></span></p>
-      <button id="logoutBtn">Cerrar sesión</button>
+      <input id="adminEmail" placeholder="correo"/>
+      <input id="adminPass" type="password" placeholder="contraseña"/>
+      <button id="loginBtn">Entrar</button>
+      <button id="logoutBtn" class="adminOnly">Salir</button>
     </div>
 
     <div class="adminOnly card">
-      <h3>💾 Respaldos descargables</h3>
-      <p>Descarga las apuestas y la base completa como respaldo.</p>
-      <div class="formline">
-        <button id="downloadCsvBtn" class="primary">Descargar apuestas CSV</button>
-        <button id="downloadJsonBtn" class="primary">Descargar respaldo JSON</button>
+      <h3>💰 Configuración de premios</h3>
+      <p>Por defecto se calcula con $5.000 por participante.</p>
+      <div class="grid">
+        <input id="entryFeeInput" type="number" min="0" placeholder="Cuota inscripción"/>
+        <input id="manualPoolInput" type="number" min="0" placeholder="Pozo manual opcional"/>
+        <input id="firstPctInput" type="number" min="0" max="100" placeholder="% 1°"/>
+        <input id="secondPctInput" type="number" min="0" max="100" placeholder="% 2°"/>
+        <input id="thirdPctInput" type="number" min="0" max="100" placeholder="% 3°"/>
+        <button id="saveSettingsBtn" class="primary">Guardar configuración</button>
       </div>
     </div>
 
-    <div class="card">
-      <h3>Reglas de puntaje</h3>
-      <p>Exacto: 3 puntos · Resultado acertado: 1 punto · Nada: 0 puntos.</p>
+    <div class="adminOnly card">
+      <h3>💾 Respaldos</h3>
+      <div class="formline">
+        <button id="downloadJsonBtn">Descargar respaldo JSON</button>
+        <button id="downloadCsvBtn">Descargar apuestas CSV</button>
+      </div>
+    </div>
+
+    <div class="adminOnly card dangerZone">
+      <h3>🧹 Panel de limpieza Segunda Fase</h3>
+      <p>Para limpiar datos de prueba escribe <strong>RESET</strong>.</p>
+      <input id="resetConfirmInput" placeholder="Escribe RESET"/>
+      <div class="cleanupGrid">
+        <button id="clearPredictionsBtn" class="danger">Borrar apuestas</button>
+        <button id="clearParticipantsBtn" class="danger">Borrar participantes</button>
+        <button id="clearResultsBtn" class="danger">Limpiar resultados</button>
+        <button id="resetAllBtn" class="danger strongDanger">Reset segunda fase</button>
+      </div>
     </div>
   </section>
 </main>
 
-<footer>
-  <small>Horarios en Chile · Fechas ajustadas a America/Santiago.</small>
-</footer>
-
-<script type="module" src="app.js?v=22"></script>
+<footer>Horarios en Chile · Fechas ajustadas a America/Santiago · Segunda Fase independiente.</footer>
+<script type="module" src="app.js?v=33"></script>
 </body>
 </html>
