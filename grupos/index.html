@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>COPA DEL MUNDO 2026</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+<header>
+  <h1>🏆 COPA DEL MUNDO 2026</h1>
+  <p>LA GRAN POLLA.</p>
+</header>
+
+<nav>
+  <button data-view="clasificacion" class="active">Clasificación</button>
+  <button data-view="participantes">Participantes</button>
+  <button data-view="partidos">Partidos</button>
+  <button data-view="predicciones">Predicciones</button>
+  <button data-view="llaves">Llaves</button><button data-view="estadisticas">Estadísticas</button><button data-view="selecciones">Selecciones</button>
+  <button data-view="admin">Admin</button>
+</nav>
+
+<main>
+  <section id="view-clasificacion" class="view active">
+    <h2>Clasificación</h2>
+    <div id="nextMatchHero" class="nextHero"></div>
+    <div id="prizeRankingBox" class="prizeStatsBox"></div>
+    <div class="scoreRulesStats card" id="scoreRulesClassification">
+  <h3>📌 Reglas de puntaje</h3>
+  <div class="rulesGrid">
+    <div><strong>3 puntos</strong><span>Resultado exacto</span></div>
+    <div><strong>1 punto</strong><span>Ganador/empate acertado</span></div>
+    <div><strong>0 puntos</strong><span>No acertado</span></div>
+  </div>
+</div>
+    <div id="summaryCards" class="infoGrid"></div>
+    <div id="podium" class="podium"></div>
+    <table>
+      <thead><tr><th>#</th><th>Participante</th><th>Puntos</th><th>Predicciones</th></tr></thead>
+      <tbody id="rankingBody"></tbody>
+    </table>
+  </section>
+
+  <section id="view-participantes" class="view">
+    <h2>Participantes</h2>
+    <div class="adminOnly card">
+      <div class="formline">
+        <input id="participantName" placeholder="Nombre participante"/>
+        <button id="addParticipantBtn" class="primary">Agregar participante</button>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>Nombre</th><th>Predicciones</th><th class="adminOnly">Acción</th></tr></thead>
+      <tbody id="participantsBody"></tbody>
+    </table>
+  </section>
+
+  <section id="view-partidos" class="view">
+    <h2>Partidos y resultados reales</h2>
+    <div id="nextMatchBox" class="nextHero compact"></div>
+    <div class="adminOnly card">
+      <h3>⚡ Carga rápida</h3>
+      <p>104 PARTIDOS.</p>
+      <button id="seedScheduleBtn" class="primary">Cargar calendario oficial 2026</button>
+    </div>
+    <div class="filters">
+      <input id="matchSearch" placeholder="Buscar equipo, fase o sede..."/>
+      <select id="phaseFilter"><option value="">Todas las fases</option></select>
+      <button id="upcomingBtn">Próximos</button>
+    </div>
+    <table>
+      <thead><tr><th>#</th><th>Fase</th><th>Partido</th><th>Fecha Chile</th><th>Sede</th><th>Resultado</th><th class="adminOnly">Editar</th></tr></thead>
+      <tbody id="matchesBody"></tbody>
+    </table>
+  </section>
+
+  <section id="view-predicciones" class="view">
+    <h2>Predicciones</h2>
+
+<div class="adminOnly card">
+  <h3>📥 Importar apuestas desde CSV</h3>
+  <p>Formato: <strong>participante;partido_numero;goles_a;goles_b</strong>. Puedes editarlo en Excel y guardarlo como CSV.</p>
+  <div class="formline">
+    <button id="downloadPredTemplateBtn" class="primary">Descargar plantilla CSV</button>
+    <input id="csvPredFile" type="file" accept=".csv,.txt"/>
+    <button id="importPredCsvBtn" class="primary">Importar apuestas</button>
+  </div>
+  <p class="muted">Si el participante no existe, se crea automáticamente. Si la apuesta ya existe, se actualiza.</p>
+</div>
+
+    <div class="adminOnly card">
+      <h3>📝 Cargar apuestas por participante</h3>
+      <p>Elige un participante y guarda cada apuesta con el botón de su fila. También puedes usar “Guardar todas las apuestas”.</p>
+      <div class="formline">
+        <select id="bulkParticipant"></select>
+        <button id="saveAllPredictionsBtn" class="primary">Guardar todas las apuestas</button>
+      </div>
+      <div class="predictionsListWrap">
+        <table>
+          <thead><tr><th>#</th><th>Fase</th><th>Partido</th><th>Fecha Chile</th><th>Apuesta</th><th>Guardar</th></tr></thead>
+          <tbody id="bulkPredictionsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>👀 Ver apuestas cargadas</h3>
+      <div class="formline">
+        <select id="viewParticipant"></select>
+      </div>
+    </div>
+
+    
+<div class="card predictionViewerFilters">
+  <h3>👀 Ver apuestas cargadas</h3>
+  <p>Para evitar tablas eternas, revisa apuestas por partido o por participante.</p>
+  <div class="grid">
+    <select id="predictionViewMode">
+      <option value="match">Ver por partido</option>
+      <option value="participant">Ver por participante</option>
+    </select>
+    <select id="predictionMatchFilter"></select>
+    <select id="predictionParticipantFilter"></select>
+  </div>
+</div>
+
+<table>
+      <thead><tr><th>Participante</th><th>Partido</th><th>Fecha</th><th>Predicción</th><th>Puntos</th></tr></thead>
+      <tbody id="predictionsBody"></tbody>
+    </table>
+  </section>
+
+  
+
+
+
+<section id="view-llaves" class="view">
+  <h2>Llaves</h2>
+  <p>Cuadro eliminatorio compacto: banderas, marcadores y avance automático. Puedes editar manualmente los equipos desde el panel admin.</p>
+
+  <div class="adminOnly card">
+    <h3>✍️ Editar equipos de eliminación</h3>
+    <div class="grid">
+      <select id="koMatchSelect"></select>
+      <input id="koTeamA" placeholder="Equipo A"/>
+      <input id="koTeamB" placeholder="Equipo B"/>
+      <select id="koFlagA"></select>
+      <select id="koFlagB"></select>
+      <button id="saveKoTeamsBtn" class="primary">Guardar equipos</button>
+    </div>
+  </div>
+
+  <div class="flagBracket">
+    <div class="flagBracketHeader">
+      <h3>FIFA WORLD CUP</h3>
+      <div class="wcTrophy">🏆</div>
+      <div class="championMini">
+        <span>WORLD CHAMPIONS</span>
+        <strong id="championName">?</strong>
+      </div>
+    </div>
+
+    <div class="flagBracketMain">
+      <div class="flagHalf">
+        <h4>Llave superior</h4>
+        <div id="upperFlagBracket" class="flagRounds"></div>
+      </div>
+
+      <div class="flagFinalCenter">
+        <div class="finalTitle">FINAL</div>
+        <div id="finalFlagCard"></div>
+        <div id="thirdFlagCard" class="thirdMini"></div>
+      </div>
+
+      <div class="flagHalf">
+        <h4>Llave inferior</h4>
+        <div id="lowerFlagBracket" class="flagRounds"></div>
+      </div>
+    </div>
+
+    <h4 class="groupsTitle">GRUPOS</h4>
+    <div id="flagGroups" class="flagGroups"></div>
+  </div>
+
+  <h3>Vista detallada por rondas</h3>
+  <div class="bracketBoard" id="bracketBoard"></div>
+</section>
+
+<section id="view-estadisticas" class="view">
+  <h2>Estadísticas</h2>
+</div><div id="prizeStatsBox" class="prizeStatsBox"></div>
+  <div id="lastHitBox" class="lastHitBox"></div>
+  <div id="tournamentStats" class="statsGrid"></div>
+
+  <h3>🏅 Top clasificación</h3>
+  <div id="topRankingCards" class="topRankingCards"></div>
+
+  <h3>📊 Rendimiento por participante</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Participante</th>
+        <th>Puntos</th>
+        <th>Exactos</th>
+        <th>Ganador/resultado</th>
+        <th>% acierto</th>
+        <th>Predicciones</th>
+      </tr>
+    </thead>
+    <tbody id="participantStatsBody"></tbody>
+  </table>
+</section>
+
+<section id="view-selecciones" class="view">
+    <h2>Selecciones</h2>
+    <p>DATOS MUNDIALEROS.</p>
+    <div id="teamsGrid" class="teamsGrid"></div>
+  </section>
+
+  <section id="view-admin" class="view">
+    <h2>Admin</h2>
+    <div id="loginBox" class="card">
+      <p>Inicia sesión con el correo administrador autorizado.</p>
+      <input id="email" type="email" placeholder="Correo admin"/>
+      <input id="password" type="password" placeholder="Contraseña"/>
+      <button id="loginBtn" class="primary">Entrar</button>
+    </div>
+
+    <div id="adminBox" class="card hidden">
+      <p><strong>Sesión admin activa:</strong> <span id="adminEmail"></span></p>
+      <button id="logoutBtn">Cerrar sesión</button>
+    </div>
+
+    <div class="adminOnly card">
+      <h3>💾 Respaldos descargables</h3>
+      <p>Descarga las apuestas y la base completa como respaldo.</p>
+      <div class="formline">
+        <button id="downloadCsvBtn" class="primary">Descargar apuestas CSV</button>
+        <button id="downloadJsonBtn" class="primary">Descargar respaldo JSON</button>
+      </div>
+    </div>
+
+    
+<div class="adminOnly card prizeAdminBox">
+<h3>🏆 Configuración de premios</h3>
+<p>Define pozo y porcentajes. Si dejas el pozo manual vacío, se calcula con participantes × aporte. Al guardar, el pozo se actualiza en Clasificación y Estadísticas.</p>
+<div class="grid">
+<input id="entryFeeInput" type="number" min="0" placeholder="Aporte por participante"/>
+<input id="manualPoolInput" type="number" min="0" placeholder="Pozo manual opcional"/>
+<input id="firstPctInput" type="number" min="0" max="100" placeholder="% 1°"/>
+<input id="secondPctInput" type="number" min="0" max="100" placeholder="% 2°"/>
+<input id="thirdPctInput" type="number" min="0" max="100" placeholder="% 3°"/>
+<button id="savePrizeSettingsBtn" class="primary">Guardar premios</button>
+</div></div>
+<div class="adminOnly card dangerZone">
+  <h3>🧹 Panel de limpieza</h3>
+  <p>Para limpiar datos de prueba, escribe <strong>RESET</strong> y elige una acción.</p>
+  <div class="formline">
+    <input id="resetConfirmInput" placeholder="Escribe RESET para confirmar"/>
+  </div>
+  <div class="cleanupGrid">
+    <button id="clearPredictionsBtn" class="danger">Borrar apuestas</button>
+    <button id="clearParticipantsBtn" class="danger">Borrar participantes</button>
+    <button id="clearResultsBtn" class="danger">Limpiar resultados</button>
+    <button id="clearParticipantsPredictionsBtn" class="danger">Borrar participantes + apuestas</button>
+    <button id="resetTestDataBtn" class="danger strongDanger">Reset pruebas</button>
+  </div>
+  <p class="muted">Reset pruebas borra participantes, apuestas y resultados, pero mantiene el calendario.</p>
+</div>
+
+<div class="card">
+      <h3>Reglas de puntaje</h3>
+      <p>Exacto: 3 puntos · Resultado acertado: 1 punto · Nada: 0 puntos.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <small>Horarios en Chile · Fechas ajustadas a America/Santiago.</small>
+</footer>
+
+<script type="module" src="app.js?v=32"></script>
+</body>
+</html>

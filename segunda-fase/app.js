@@ -1,7 +1,7 @@
 import { OFFICIAL_MATCHES } from "./schedule.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, serverTimestamp, setDoc, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCjydf-EE6Z_ZUZ0B48oQFha262sz9KJms",
@@ -223,12 +223,14 @@ function renderMatches(){
         realA: document.querySelector(`[data-real-a="${id}"]`).value,
         realB: document.querySelector(`[data-real-b="${id}"]`).value
       });
+      await refreshAfterWrite();
     };
   });
   document.querySelectorAll("[data-clear-result]").forEach(btn => {
     btn.onclick = async () => {
       if(!isAdmin) return;
       await updateDoc(doc(db,C.matches,btn.dataset.clearResult), {realA:"", realB:""});
+      await refreshAfterWrite();
     };
   });
 }
@@ -336,6 +338,7 @@ async function seedSchedule(){
   for(const m of ko){
     await setDoc(doc(db,C.matches,m.id), {...m, sourceId:m.id, updatedAt:serverTimestamp()}, {merge:true});
   }
+  await refreshAfterWrite();
   alert(`Calendario segunda fase cargado/actualizado: ${ko.length} partidos.`);
 }
 async function addParticipant(){
@@ -344,6 +347,7 @@ async function addParticipant(){
   if(!name) return;
   await addDoc(collection(db,C.participants), {name, createdAt:serverTimestamp()});
   $("participantName").value = "";
+  await refreshAfterWrite();
 }
 async function saveOnePrediction(pid,mid){
   if(!isAdmin) return alert("Solo admin.");
@@ -355,6 +359,7 @@ async function saveOnePrediction(pid,mid){
   await setDoc(doc(db,C.predictions,`${pid}_${mid}`), {participantId:pid, matchId:mid, goalsA:a, goalsB:b, updatedAt:serverTimestamp()});
   const hint = document.querySelector(`[data-saved-hint="${mid}"]`);
   if(hint) hint.textContent = "Guardado ✅";
+  await refreshAfterWrite();
 }
 async function saveAllPredictions(){
   if(!isAdmin) return;
@@ -369,6 +374,7 @@ async function saveAllPredictions(){
     await setDoc(doc(db,C.predictions,`${pid}_${m.id}`), {participantId:pid, matchId:m.id, goalsA:a, goalsB:b, updatedAt:serverTimestamp()});
     n++;
   }
+  await refreshAfterWrite();
   alert(`Apuestas guardadas: ${n}`);
 }
 function parseCsv(text){
@@ -409,6 +415,7 @@ async function importCsv(){
     await setDoc(doc(db,C.predictions,`${cache[key]}_${m.id}`), {participantId:cache[key], matchId:m.id, goalsA:a, goalsB:b, updatedAt:serverTimestamp()});
     ok++;
   }
+  await refreshAfterWrite();
   alert(`Importación lista.\nApuestas importadas: ${ok}\nFilas omitidas: ${skipped}`);
 }
 function downloadText(filename,text,type="text/plain"){
@@ -448,6 +455,7 @@ async function savePrizeSettings(){
   };
   prizeSettings = {...prizeSettings,...payload};
   await setDoc(doc(db,C.settings,"prizes"), payload, {merge:true});
+  await refreshAfterWrite();
   alert("Premios guardados ✅");
 }
 function requireReset(){
@@ -457,10 +465,14 @@ function requireReset(){
 async function clearCollection(name,arr){
   await Promise.all(arr.map(x=>deleteDoc(doc(db,name,x.id))));
 }
-async function clearPredictions(){ if(isAdmin && requireReset()){ await clearCollection(C.predictions,predictions); alert("Apuestas borradas."); } }
-async function clearParticipants(){ if(isAdmin && requireReset()){ await clearCollection(C.participants,participants); alert("Participantes borrados."); } }
-async function clearResults(){ if(isAdmin && requireReset()){ await Promise.all(matches.map(m=>updateDoc(doc(db,C.matches,m.id),{realA:"",realB:""}))); alert("Resultados limpiados."); } }
-async function resetAll(){ if(isAdmin && requireReset()){ await clearCollection(C.predictions,predictions); await clearCollection(C.participants,participants); await Promise.all(matches.map(m=>updateDoc(doc(db,C.matches,m.id),{realA:"",realB:""}))); alert("Reset segunda fase listo."); } }
+async function clearPredictions(){ if(isAdmin && requireReset()){ await clearCollection(C.predictions,predictions); await refreshAfterWrite();
+  alert("Apuestas borradas."); } }
+async function clearParticipants(){ if(isAdmin && requireReset()){ await clearCollection(C.participants,participants); await refreshAfterWrite();
+  alert("Participantes borrados."); } }
+async function clearResults(){ if(isAdmin && requireReset()){ await Promise.all(matches.map(m=>updateDoc(doc(db,C.matches,m.id),{realA:"",realB:""}))); await refreshAfterWrite();
+  alert("Resultados limpiados."); } }
+async function resetAll(){ if(isAdmin && requireReset()){ await clearCollection(C.predictions,predictions); await clearCollection(C.participants,participants); await Promise.all(matches.map(m=>updateDoc(doc(db,C.matches,m.id),{realA:"",realB:""}))); await refreshAfterWrite();
+  alert("Reset segunda fase listo."); } }
 
 document.querySelectorAll("nav button").forEach(btn => {
   btn.addEventListener("click", () => {
@@ -489,6 +501,7 @@ $("predictionViewMode")?.addEventListener("change",()=>{fillSelects(); renderPre
 $("predictionMatchFilter")?.addEventListener("change",renderPredictions);
 $("predictionParticipantFilter")?.addEventListener("change",renderPredictions);
 $("savePrizeSettingsBtn")?.addEventListener("click",savePrizeSettings);
+$("refreshDataBtn")?.addEventListener("click",loadAllData);
 $("downloadJsonBtn")?.addEventListener("click",downloadBackup);
 $("downloadCsvBtn")?.addEventListener("click",downloadPredictionsCsv);
 $("clearPredictionsBtn")?.addEventListener("click",clearPredictions);
@@ -496,12 +509,26 @@ $("clearParticipantsBtn")?.addEventListener("click",clearParticipants);
 $("clearResultsBtn")?.addEventListener("click",clearResults);
 $("resetAllBtn")?.addEventListener("click",resetAll);
 
+
+async function loadAllData(){
+  const [participantsSnap, matchesSnap, predictionsSnap, settingsSnap] = await Promise.all([
+    getDocs(collection(db,C.participants)),
+    getDocs(collection(db,C.matches)),
+    getDocs(collection(db,C.predictions)),
+    getDoc(doc(db,C.settings,"prizes"))
+  ]);
+  participants = participantsSnap.docs.map(d=>({id:d.id,...d.data()}));
+  matches = matchesSnap.docs.map(d=>({id:d.id,...d.data()}));
+  predictions = predictionsSnap.docs.map(d=>({id:d.id,...d.data()}));
+  if(settingsSnap.exists()) prizeSettings = {...prizeSettings,...settingsSnap.data()};
+  renderAll();
+}
+async function refreshAfterWrite(){
+  await loadAllData();
+}
+
 onAuthStateChanged(auth, user => {
   isAdmin = !!user && user.email === ADMIN_EMAIL;
   document.body.classList.toggle("isAdmin",isAdmin);
 });
-
-onSnapshot(collection(db,C.participants), snap => {participants = snap.docs.map(d=>({id:d.id,...d.data()})); renderAll();});
-onSnapshot(collection(db,C.matches), snap => {matches = snap.docs.map(d=>({id:d.id,...d.data()})); renderAll();});
-onSnapshot(collection(db,C.predictions), snap => {predictions = snap.docs.map(d=>({id:d.id,...d.data()})); renderAll();});
-onSnapshot(doc(db,C.settings,"prizes"), snap => {if(snap.exists()) prizeSettings = {...prizeSettings,...snap.data()}; renderAll();});
+loadAllData();
