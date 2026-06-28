@@ -1,4 +1,4 @@
-VERSIÓN 2.1 OPTIMIZADA - LA POLLA DEL LOQUITO
+VERSIÓN 2.2 OPTIMIZADA + BOTÓN VOLVER - LA POLLA DEL LOQUITO
 
 Estructura del proyecto:
 
@@ -58,3 +58,7 @@ OPTIMIZACIÓN v2.1:
 - La fase de grupos queda dentro de /grupos/ y solo consume lecturas cuando alguien entra ahí.
 - La segunda fase usa carga puntual de datos en vez de escuchas en tiempo real permanentes.
 - En Segunda Fase hay un botón "Actualizar datos" para refrescar manualmente si es necesario.
+
+
+CAMBIO v2.2:
+- Se agregó botón “← Volver al inicio” en /grupos/ y /segunda-fase/.

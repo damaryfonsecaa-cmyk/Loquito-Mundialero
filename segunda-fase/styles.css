@@ -744,3 +744,27 @@ body.isAdmin th.adminOnly, body.isAdmin td.adminOnly{display:table-cell}
 .strongDanger{background:#b42323;color:white;border-color:#b42323}
 .bases li{margin:7px 0}
 @media(max-width:800px){.scoreInput{width:52px}.rulesGrid{grid-template-columns:1fr}}
+
+
+/* Botón volver al inicio */
+.backHomeBtn{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin:14px 22px 0;
+  padding:10px 14px;
+  border:1px solid #cfe0ff;
+  border-radius:999px;
+  background:#ffffff;
+  color:#0b5ed7;
+  font-weight:900;
+  text-decoration:none;
+  box-shadow:0 4px 12px rgba(12,30,60,.06);
+}
+.backHomeBtn:hover{
+  border-color:#0b5ed7;
+  background:#eaf2ff;
+}
+@media(max-width:800px){
+  .backHomeBtn{margin:10px 12px 0}
+}
