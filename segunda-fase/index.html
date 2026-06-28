@@ -18,6 +18,7 @@
   <button data-view="participantes">Participantes</button>
   <button data-view="partidos">Partidos</button>
   <button data-view="predicciones">Predicciones</button>
+  <button data-view="estadisticas">Estadísticas</button>
   <button data-view="bases">Bases</button>
   <button data-view="admin">Admin</button>
 </nav>
@@ -119,7 +120,18 @@
       <p class="muted">Si el participante no existe, se crea automáticamente. Si la apuesta ya existe, se actualiza.</p>
     </div>
 
+    
     <div class="adminOnly card">
+      <h3>📲 Cargar apuestas desde WhatsApp</h3>
+      <p>Pega un bloque con el nombre y apuestas. Formatos aceptados:</p>
+      <p class="muted"><strong>Caro</strong><br>73 2-1<br>74 0-0<br>75 3-2</p>
+      <textarea id="whatsappPredText" rows="8" placeholder="Caro&#10;73 2-1&#10;74 0-0&#10;75 3-2"></textarea>
+      <div class="formline">
+        <button id="importWhatsappBtn" class="primary">Importar texto WhatsApp</button>
+      </div>
+    </div>
+
+<div class="adminOnly card">
       <h3>📝 Cargar apuestas por participante</h3>
       <p>Elige un participante, completa los resultados y guarda. Los partidos cerrados no permiten guardar apuesta.</p>
       <div class="formline">
@@ -154,6 +166,32 @@
         <tr><th>Participante</th><th>Partido</th><th>Fecha</th><th>Predicción</th><th>Puntos</th></tr>
       </thead>
       <tbody id="predictionsBody"></tbody>
+    </table>
+  </section>
+
+
+  <section id="view-estadisticas" class="view">
+    <h2>Estadísticas Segunda Fase</h2>
+
+    <div id="lastHitBox" class="lastHitBox"></div>
+    <div id="tournamentStats" class="statsGrid"></div>
+
+    <h3>🏅 Top clasificación</h3>
+    <div id="topRankingCards" class="topRankingCards"></div>
+
+    <h3>📊 Rendimiento por participante</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Participante</th>
+          <th>Puntos</th>
+          <th>Exactos</th>
+          <th>% exactos</th>
+          <th>Apuestas</th>
+          <th>Faltantes</th>
+        </tr>
+      </thead>
+      <tbody id="participantStatsBody"></tbody>
     </table>
   </section>
 
@@ -237,6 +275,6 @@
 </main>
 
 <footer>Horarios en Chile · Fechas ajustadas a America/Santiago · Segunda Fase independiente.</footer>
-<script type="module" src="app.js?v=22"></script>
+<script type="module" src="app.js?v=23"></script>
 </body>
 </html>

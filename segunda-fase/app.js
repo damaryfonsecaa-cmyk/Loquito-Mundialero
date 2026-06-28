@@ -104,6 +104,78 @@ function effectivePool(){
   return manual > 0 ? manual : participants.length * Number(prizeSettings.entryFee||5000);
 }
 
+
+function statsRows(){
+  return participants.map(p => ({...p, ...participantStats(p.id)}))
+    .sort((a,b)=>b.points-a.points || b.exacts-a.exacts || a.name.localeCompare(b.name));
+}
+function lastPlayedMatch(){
+  return matches
+    .filter(m => m.realA !== "" && m.realB !== "" && m.realA != null && m.realB != null)
+    .sort((a,b)=>(b.matchNumber||0)-(a.matchNumber||0))[0];
+}
+function renderStats(){
+  const lastBox = $("lastHitBox");
+  const statsBox = $("tournamentStats");
+  const topBox = $("topRankingCards");
+  const body = $("participantStatsBody");
+  if(!lastBox || !statsBox || !topBox || !body) return;
+
+  const totalMatches = matches.length;
+  const played = matches.filter(m => m.realA !== "" && m.realB !== "" && m.realA != null && m.realB != null).length;
+  const totalPreds = predictions.length;
+  const exactPreds = predictions.filter(p => {
+    const m = matches.find(x=>x.id===p.matchId);
+    return exactPoints(p,m) === 3;
+  }).length;
+  const pct = totalPreds ? Math.round((exactPreds/totalPreds)*100) : 0;
+
+  statsBox.innerHTML = `
+    <div class="statCard"><div class="muted">Partidos cargados</div><div class="bigNumber">${totalMatches}</div></div>
+    <div class="statCard"><div class="muted">Partidos con resultado</div><div class="bigNumber">${played}</div></div>
+    <div class="statCard"><div class="muted">Apuestas cargadas</div><div class="bigNumber">${totalPreds}</div></div>
+    <div class="statCard"><div class="muted">Exactos totales</div><div class="bigNumber">${exactPreds}</div><div class="muted">${pct}% de exactitud</div></div>
+  `;
+
+  const last = lastPlayedMatch();
+  if(last){
+    const hits = predictions.filter(p => p.matchId === last.id && exactPoints(p,last) === 3)
+      .map(p => participants.find(x=>x.id===p.participantId)?.name)
+      .filter(Boolean)
+      .sort((a,b)=>a.localeCompare(b));
+    lastBox.innerHTML = `
+      <h3>🎯 Último partido jugado</h3>
+      <div>${matchLabel(last)}</div>
+      <div class="lastResultScore">${last.realA} - ${last.realB}</div>
+      <p><strong>Acertaron exacto:</strong> ${hits.length ? "" : "nadie todavía."}</p>
+      <div class="hitList">${hits.map(n=>`<span class="hitPill">${esc(n)}</span>`).join("")}</div>
+    `;
+  }else{
+    lastBox.innerHTML = `<h3>🎯 Último partido jugado</h3><p class="muted">Aún no hay resultados cargados.</p>`;
+  }
+
+  const rows = statsRows();
+  topBox.innerHTML = rows.slice(0,3).map((p,i)=>`
+    <div class="topRankingCard">
+      <div class="muted">${["🥇 Líder","🥈 Segundo","🥉 Tercero"][i]}</div>
+      <strong>${esc(p.name)}</strong>
+      <div>${p.points} puntos · ${p.exacts} exactos</div>
+    </div>
+  `).join("");
+
+  body.innerHTML = rows.map(p => {
+    const rate = p.count ? Math.round((p.exacts/p.count)*100) : 0;
+    return `<tr>
+      <td>${esc(p.name)}</td>
+      <td><strong>${p.points}</strong></td>
+      <td>${p.exacts}</td>
+      <td>${rate}%</td>
+      <td>${p.count}</td>
+      <td>${p.missing}</td>
+    </tr>`;
+  }).join("") || `<tr><td colspan="6" class="muted">Aún no hay participantes.</td></tr>`;
+}
+
 function renderAll(){
   rememberDrafts();
   renderRanking();
@@ -114,6 +186,7 @@ function renderAll(){
   renderPredictions();
   renderNextMatch();
   renderPrize();
+  renderStats();
 }
 
 function renderRanking(){
@@ -181,7 +254,7 @@ function renderParticipants(){
   document.querySelectorAll("[data-del-participant]").forEach(btn => {
     btn.onclick = async () => {
       if(!isAdmin) return alert("Solo admin.");
-      if(confirm("¿Eliminar participante?")) await deleteDoc(doc(db,C.participants,btn.dataset.delParticipant));
+      if(confirm("¿Eliminar participante?")){ await deleteDoc(doc(db,C.participants,btn.dataset.delParticipant)); await refreshAfterWrite(); }
     };
   });
 }
@@ -426,6 +499,39 @@ function downloadText(filename,text,type="text/plain"){
   a.click();
   URL.revokeObjectURL(a.href);
 }
+
+function parseWhatsappPredictions(text){
+  const lines = text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  if(lines.length < 2) return {name:"", rows:[]};
+  const name = lines[0].replace(/^participante\s*[:\-]\s*/i,"").trim();
+  const rows = [];
+  for(const line of lines.slice(1)){
+    const m = line.match(/(?:partido\s*)?(\d{1,3})\s*[:\-]?\s+(\d+)\s*[-xX]\s*(\d+)/i);
+    if(m) rows.push({matchNumber:Number(m[1]), goalsA:m[2], goalsB:m[3]});
+  }
+  return {name, rows};
+}
+async function importWhatsappText(){
+  if(!isAdmin) return alert("Solo admin.");
+  const text = $("whatsappPredText")?.value || "";
+  const parsed = parseWhatsappPredictions(text);
+  if(!parsed.name || !parsed.rows.length){
+    return alert("No pude leer el texto. Usa formato: Nombre, y luego líneas tipo: 73 2-1");
+  }
+  const pid = await getOrCreateParticipant(parsed.name);
+  let ok = 0, skipped = 0;
+  for(const r of parsed.rows){
+    const m = matches.find(x=>Number(x.matchNumber) === Number(r.matchNumber));
+    if(!m || !isBetOpen(m)){ skipped++; continue; }
+    await setDoc(doc(db,C.predictions,`${pid}_${m.id}`), {
+      participantId:pid, matchId:m.id, goalsA:r.goalsA, goalsB:r.goalsB, updatedAt:serverTimestamp()
+    });
+    ok++;
+  }
+  await refreshAfterWrite();
+  alert(`Importación WhatsApp lista.\nParticipante: ${parsed.name}\nApuestas importadas: ${ok}\nFilas omitidas: ${skipped}`);
+}
+
 function downloadTemplate(){
   const lines = ["participante;partido_numero;goles_a;goles_b"];
   const name = participants[0]?.name || "Nombre participante";
@@ -497,6 +603,7 @@ $("phaseFilter")?.addEventListener("change",renderMatches);
 $("upcomingBtn")?.addEventListener("click",()=>{showUpcomingOnly=!showUpcomingOnly; renderMatches();});
 $("downloadPredTemplateBtn")?.addEventListener("click",downloadTemplate);
 $("importPredCsvBtn")?.addEventListener("click",importCsv);
+$("importWhatsappBtn")?.addEventListener("click",importWhatsappText);
 $("predictionViewMode")?.addEventListener("change",()=>{fillSelects(); renderPredictions();});
 $("predictionMatchFilter")?.addEventListener("change",renderPredictions);
 $("predictionParticipantFilter")?.addEventListener("change",renderPredictions);

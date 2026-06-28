@@ -62,3 +62,10 @@ OPTIMIZACIÓN v2.1:
 
 CAMBIO v2.2:
 - Se agregó botón “← Volver al inicio” en /grupos/ y /segunda-fase/.
+
+
+CAMBIO v2.3:
+- Se agrega hoja Estadísticas en Segunda Fase.
+- Se agrega carga rápida desde texto/WhatsApp.
+- Se refuerza actualización de datos tras agregar participantes, apuestas y resultados.
+- Se mantiene reducción de lecturas: los datos se cargan de forma puntual.
