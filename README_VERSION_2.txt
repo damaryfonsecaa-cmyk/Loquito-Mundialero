@@ -69,3 +69,17 @@ CAMBIO v2.3:
 - Se agrega carga rápida desde texto/WhatsApp.
 - Se refuerza actualización de datos tras agregar participantes, apuestas y resultados.
 - Se mantiene reducción de lecturas: los datos se cargan de forma puntual.
+
+
+CAMBIO v2.4:
+- Corrige/fortalece botón Admin y muestra estado del correo conectado.
+- Agrega alertas claras si Firestore Rules bloquea escrituras.
+- Agrega botón “Sincronizar desde fase de grupos” para construir segunda fase según las llaves ya definidas en la primera página.
+- Agrega editor manual de partidos de segunda fase.
+
+
+CAMBIO v2.5:
+- Segunda Fase incorpora pestaña Llaves visuales.
+- La llave se puede editar haciendo clic en cada partido.
+- Se mantiene sincronización desde Fase de Grupos para copiar los cruces ya definidos.
+- La llave visual se conecta con partidos, apuestas y resultados de Segunda Fase.

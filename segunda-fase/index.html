@@ -18,6 +18,7 @@
   <button data-view="participantes">Participantes</button>
   <button data-view="partidos">Partidos</button>
   <button data-view="predicciones">Predicciones</button>
+  <button data-view="llaves">Llaves</button>
   <button data-view="estadisticas">Estadísticas</button>
   <button data-view="bases">Bases</button>
   <button data-view="admin">Admin</button>
@@ -79,8 +80,23 @@
 
     <div class="adminOnly card">
       <h3>⚡ Carga rápida</h3>
-      <p>Carga solo los partidos de la segunda fase, desde 16avos hasta la final.</p>
-      <button id="seedScheduleBtn" class="primary">Cargar calendario segunda fase</button>
+      <p>Carga los partidos de segunda fase. Si ya dejaste las llaves actualizadas en Fase de Grupos, usa “Sincronizar desde fase de grupos”.</p>
+      <button id="seedScheduleBtn" class="primary">Cargar calendario base segunda fase</button>
+      <button id="syncFromGroupsBtn" class="primary">Sincronizar desde fase de grupos</button>
+    </div>
+
+
+    <div class="adminOnly card">
+      <h3>✍️ Editar partido manualmente</h3>
+      <p>Úsalo para corregir cruces de 16avos/octavos según lo definido desde fase de grupos.</p>
+      <div class="grid">
+        <select id="manualMatchSelect"></select>
+        <input id="manualTeamA" placeholder="Equipo A"/>
+        <input id="manualTeamB" placeholder="Equipo B"/>
+        <input id="manualFlagA" placeholder="Código bandera A, ej: ar"/>
+        <input id="manualFlagB" placeholder="Código bandera B, ej: cl"/>
+        <button id="saveManualMatchBtn" class="primary">Guardar partido</button>
+      </div>
     </div>
 
     <div class="filters">
@@ -170,6 +186,53 @@
   </section>
 
 
+
+  <section id="view-llaves" class="view">
+    <h2>Llaves Segunda Fase</h2>
+    <p>Cuadro eliminatorio visual. Al ingresar como admin puedes hacer clic en cualquier partido para editar sus equipos.</p>
+
+    <div class="adminOnly card">
+      <h3>🔄 Construir desde Fase de Grupos</h3>
+      <p>Usa esta opción si ya dejaste actualizadas las llaves/equipos en la fase de grupos. Copia los partidos 73 a 104 hacia la segunda fase.</p>
+      <div class="formline">
+        <button id="syncFromGroupsBtn2" class="primary">Sincronizar desde fase de grupos</button>
+        <button id="seedScheduleBtn2">Cargar calendario base</button>
+      </div>
+    </div>
+
+    <div class="flagBracket koOnlyBracket">
+      <div class="flagBracketHeader">
+        <h3>FIFA WORLD CUP</h3>
+        <div class="wcTrophy">🏆</div>
+        <div class="championMini">
+          <span>WORLD CHAMPIONS</span>
+          <strong id="koChampionName">?</strong>
+        </div>
+      </div>
+
+      <div class="flagBracketMain">
+        <div class="flagHalf">
+          <h4>Llave superior</h4>
+          <div id="koUpperFlagBracket" class="flagRounds"></div>
+        </div>
+
+        <div class="flagFinalCenter">
+          <div class="finalTitle">FINAL</div>
+          <div id="koFinalFlagCard"></div>
+          <div id="koThirdFlagCard" class="thirdMini"></div>
+        </div>
+
+        <div class="flagHalf">
+          <h4>Llave inferior</h4>
+          <div id="koLowerFlagBracket" class="flagRounds"></div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Vista detallada por rondas</h3>
+    <div class="bracketBoard" id="koBracketBoard"></div>
+  </section>
+
   <section id="view-estadisticas" class="view">
     <h2>Estadísticas Segunda Fase</h2>
 
@@ -230,6 +293,7 @@
 
   <section id="view-admin" class="view">
     <h2>Admin</h2>
+    <div id="adminStatusBox" class="adminStatusBox"></div>
     <div class="card">
       <p>Inicia sesión con el correo administrador autorizado.</p>
       <input id="adminEmail" placeholder="correo"/>
@@ -272,9 +336,29 @@
       </div>
     </div>
   </section>
+
+  <div id="koEditModal" class="koModal hidden">
+    <div class="koModalCard">
+      <div class="koModalHeader">
+        <h3 id="koModalTitle">Editar partido</h3>
+        <button id="closeKoModalBtn">✕</button>
+      </div>
+      <div class="grid">
+        <input id="modalTeamA" placeholder="Equipo A"/>
+        <input id="modalTeamB" placeholder="Equipo B"/>
+        <input id="modalFlagA" placeholder="Bandera A, ej: ar"/>
+        <input id="modalFlagB" placeholder="Bandera B, ej: br"/>
+      </div>
+      <div class="formline">
+        <button id="saveKoModalBtn" class="primary">Guardar equipos</button>
+      </div>
+      <p class="muted">Al guardar se actualiza el partido, las apuestas y la clasificación de Segunda Fase.</p>
+    </div>
+  </div>
+
 </main>
 
 <footer>Horarios en Chile · Fechas ajustadas a America/Santiago · Segunda Fase independiente.</footer>
-<script type="module" src="app.js?v=23"></script>
+<script type="module" src="app.js?v=25"></script>
 </body>
 </html>

@@ -13,6 +13,7 @@ const firebaseConfig = {
   measurementId: "G-26Z5TPY2HD"
 };
 const ADMIN_EMAIL = "damaryfonsecaayala@gmail.com";
+const ADMIN_EMAILS = [ADMIN_EMAIL, "damary.fonseca.a@gmail.com"];
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -31,9 +32,40 @@ let predictions = [];
 let isAdmin = false;
 let showUpcomingOnly = false;
 let predictionDrafts = {};
+
+const KO_ROUNDS = {
+  r32: [73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88],
+  r16: [89,90,91,92,93,94,95,96],
+  qf: [97,98,99,100],
+  sf: [101,102],
+  final: [104],
+  third: [103]
+};
+const KO_UPPER = {
+  r32:[73,74,75,76,77,78,79,80],
+  r16:[89,90,91,92],
+  qf:[97,99],
+  sf:[101]
+};
+const KO_LOWER = {
+  r32:[81,82,83,84,85,86,87,88],
+  r16:[93,94,95,96],
+  qf:[98,100],
+  sf:[102]
+};
+let koEditingMatchId = "";
+
 let prizeSettings = {entryFee:5000, manualPool:"", firstPct:70, secondPct:20, thirdPct:10};
 
 const $ = id => document.getElementById(id);
+
+window.addEventListener("unhandledrejection", event => {
+  console.error(event.reason);
+  alert("Ocurrió un error: " + (event.reason?.message || event.reason || "revisa la consola"));
+});
+window.addEventListener("error", event => {
+  console.error(event.error || event.message);
+});
 
 function esc(s){
   return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[c]));
@@ -176,6 +208,168 @@ function renderStats(){
   }).join("") || `<tr><td colspan="6" class="muted">Aún no hay participantes.</td></tr>`;
 }
 
+
+function renderAdminStatus(user=null){
+  const box = $("adminStatusBox");
+  if(!box) return;
+  if(!user){
+    box.innerHTML = `<div class="card"><strong>🔐 Admin:</strong> no has iniciado sesión.</div>`;
+    return;
+  }
+  const ok = ADMIN_EMAILS.includes(user.email);
+  box.innerHTML = `<div class="card ${ok ? "adminOk" : "adminWarn"}">
+    <strong>${ok ? "✅ Admin activo" : "⚠️ Sesión iniciada, pero correo no autorizado"}</strong>
+    <div class="muted">Correo: ${esc(user.email || "")}</div>
+    ${ok ? "" : `<div>El correo debe coincidir con las reglas de Firestore.</div>`}
+  </div>`;
+}
+
+
+function realWinnerTeam(m){
+  if(!m || m.realA === "" || m.realB === "" || m.realA == null || m.realB == null) return "";
+  const a = Number(m.realA), b = Number(m.realB);
+  if(a > b) return m.teamA;
+  if(b > a) return m.teamB;
+  return "";
+}
+function getMatchByNumber(no){
+  return matches.find(m => Number(m.matchNumber) === Number(no));
+}
+function teamMini(name, code){
+  return `<span class="miniTeam">${flagImg(code,name)}<span>${esc(name || "Por definir")}</span></span>`;
+}
+function renderKoTeamLine(m, side){
+  const team = side === "A" ? m?.teamA : m?.teamB;
+  const code = side === "A" ? m?.flagCodeA : m?.flagCodeB;
+  const score = side === "A" ? m?.realA : m?.realB;
+  const win = realWinnerTeam(m) && realWinnerTeam(m) === team;
+  return `<div class="koTeamLine ${win ? "winner" : ""}">
+    <span>${teamMini(team,code)}</span>
+    <strong>${score !== "" && score != null ? esc(score) : ""}</strong>
+  </div>`;
+}
+function koCard(no, compact=false){
+  const m = getMatchByNumber(no);
+  if(!m) return `<div class="koFlagCard empty"><strong>#${no}</strong><span>Sin cargar</span></div>`;
+  return `<button class="koFlagCard ${compact ? "compact" : ""}" data-edit-ko="${m.id}">
+    <div class="koMatchNo">#${m.matchNumber} · ${esc(m.group || "")}</div>
+    ${renderKoTeamLine(m,"A")}
+    ${renderKoTeamLine(m,"B")}
+  </button>`;
+}
+function renderFlagColumn(roundTitle, nums){
+  return `<div class="flagRoundCol">
+    <div class="roundTitle">${roundTitle}</div>
+    ${nums.map(n=>koCard(n,true)).join("")}
+  </div>`;
+}
+function renderKoVisualBracket(){
+  const upper = $("koUpperFlagBracket");
+  const lower = $("koLowerFlagBracket");
+  const final = $("koFinalFlagCard");
+  const third = $("koThirdFlagCard");
+  const champ = $("koChampionName");
+  if(!upper || !lower || !final || !third) return;
+
+  upper.innerHTML = [
+    renderFlagColumn("16avos", KO_UPPER.r32),
+    renderFlagColumn("Octavos", KO_UPPER.r16),
+    renderFlagColumn("Cuartos", KO_UPPER.qf),
+    renderFlagColumn("Semi", KO_UPPER.sf)
+  ].join("");
+
+  lower.innerHTML = [
+    renderFlagColumn("Semi", KO_LOWER.sf),
+    renderFlagColumn("Cuartos", KO_LOWER.qf),
+    renderFlagColumn("Octavos", KO_LOWER.r16),
+    renderFlagColumn("16avos", KO_LOWER.r32)
+  ].join("");
+
+  final.innerHTML = koCard(104);
+  third.innerHTML = `<div class="thirdTitle">TERCER LUGAR</div>${koCard(103)}`;
+
+  const fm = getMatchByNumber(104);
+  const winnerName = realWinnerTeam(fm);
+  if(champ) champ.textContent = winnerName || "?";
+
+  document.querySelectorAll("[data-edit-ko]").forEach(btn => {
+    btn.onclick = () => openKoEditor(btn.dataset.editKo);
+  });
+}
+function renderKoBracketBoard(){
+  const board = $("koBracketBoard");
+  if(!board) return;
+  const rounds = [
+    ["16avos", KO_ROUNDS.r32],
+    ["Octavos", KO_ROUNDS.r16],
+    ["Cuartos", KO_ROUNDS.qf],
+    ["Semifinales", KO_ROUNDS.sf],
+    ["Tercer lugar", KO_ROUNDS.third],
+    ["Final", KO_ROUNDS.final]
+  ];
+  board.innerHTML = `<div class="bracketWrap">${rounds.map(([title,nums])=>`
+    <div class="bracketRound">
+      <h3>${title}</h3>
+      ${nums.map(n => {
+        const m = getMatchByNumber(n);
+        if(!m) return `<div class="bracketMatch"><div class="bracketMatchNumber">#${n}</div><div class="muted">Sin cargar</div></div>`;
+        return `<div class="bracketMatch ${realWinnerTeam(m) ? "done" : ""}" data-edit-ko="${m.id}">
+          <div class="bracketMatchNumber">#${m.matchNumber} · ${esc(m.group||"")}</div>
+          ${renderKoTeamLine(m,"A")}
+          ${renderKoTeamLine(m,"B")}
+          <div class="bracketArrow">🇨🇱 ${localDate(m.utc)}</div>
+        </div>`;
+      }).join("")}
+    </div>
+  `).join("")}</div>`;
+
+  document.querySelectorAll("#koBracketBoard [data-edit-ko]").forEach(el => {
+    el.onclick = () => openKoEditor(el.dataset.editKo);
+  });
+}
+function renderKoAll(){
+  renderKoVisualBracket();
+  renderKoBracketBoard();
+}
+function openKoEditor(matchId){
+  if(!isAdmin){
+    alert("Para editar equipos debes iniciar sesión como admin.");
+    return;
+  }
+  const m = matches.find(x=>x.id===matchId);
+  if(!m) return;
+  koEditingMatchId = matchId;
+  $("koModalTitle").textContent = `Editar partido #${m.matchNumber}`;
+  $("modalTeamA").value = m.teamA || "";
+  $("modalTeamB").value = m.teamB || "";
+  $("modalFlagA").value = m.flagCodeA || "";
+  $("modalFlagB").value = m.flagCodeB || "";
+  $("koEditModal").classList.remove("hidden");
+}
+function closeKoEditor(){
+  $("koEditModal")?.classList.add("hidden");
+  koEditingMatchId = "";
+}
+async function saveKoModal(){
+  if(!isAdmin) return alert("Solo admin.");
+  if(!koEditingMatchId) return;
+  try{
+    await updateDoc(doc(db,C.matches,koEditingMatchId), {
+      teamA:$("modalTeamA").value.trim(),
+      teamB:$("modalTeamB").value.trim(),
+      flagCodeA:$("modalFlagA").value.trim(),
+      flagCodeB:$("modalFlagB").value.trim(),
+      updatedAt:serverTimestamp()
+    });
+    closeKoEditor();
+    await refreshAfterWrite();
+    alert("Llave actualizada ✅");
+  }catch(e){
+    console.error(e);
+    alert("No se pudo guardar la llave: " + e.message);
+  }
+}
+
 function renderAll(){
   rememberDrafts();
   renderRanking();
@@ -187,6 +381,7 @@ function renderAll(){
   renderNextMatch();
   renderPrize();
   renderStats();
+  renderKoAll();
 }
 
 function renderRanking(){
@@ -341,6 +536,14 @@ function fillSelects(){
     ps.style.display = byMatch ? "none" : "";
   }
 
+  const manualSel = $("manualMatchSelect");
+  if(manualSel){
+    const old = manualSel.value;
+    manualSel.innerHTML = sortedMatches().map(m=>`<option value="${m.id}">#${m.matchNumber} · ${esc(m.group||"")} · ${esc(m.teamA)} vs ${esc(m.teamB)}</option>`).join("");
+    if(old && matches.some(m=>m.id===old)) manualSel.value = old;
+    fillManualEditor();
+  }
+
   if($("entryFeeInput")){
     $("entryFeeInput").value = prizeSettings.entryFee ?? 5000;
     $("manualPoolInput").value = prizeSettings.manualPool ?? "";
@@ -405,22 +608,87 @@ function renderPredictions(){
   }).join("") || `<tr><td colspan="5" class="muted">No hay apuestas para este filtro.</td></tr>`;
 }
 
+
+async function syncFromGroupStage(){
+  if(!isAdmin) return alert("Solo admin.");
+  try{
+    const snap = await getDocs(collection(db,"matches"));
+    const source = snap.docs.map(d=>({id:d.id,...d.data()}))
+      .filter(m => Number(m.matchNumber) >= 73 && Number(m.matchNumber) <= 104)
+      .sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999));
+
+    if(!source.length){
+      return alert("No encontré partidos 73 a 104 en la colección original 'matches'. Primero actualiza las llaves en Fase de Grupos o usa la carga base.");
+    }
+
+    for(const m of source){
+      await setDoc(doc(db,C.matches,m.id), {...m, sourceId:m.id, syncedFromGroups:true, updatedAt:serverTimestamp()}, {merge:true});
+    }
+    await refreshAfterWrite();
+    alert(`Sincronización lista ✅\nPartidos copiados desde Fase de Grupos: ${source.length}`);
+  }catch(e){
+    console.error(e);
+    alert("No se pudo sincronizar desde fase de grupos: " + e.message);
+  }
+}
+function fillManualEditor(){
+  const sel = $("manualMatchSelect");
+  if(!sel) return;
+  const m = matches.find(x=>x.id===sel.value);
+  if(!m) return;
+  $("manualTeamA").value = m.teamA || "";
+  $("manualTeamB").value = m.teamB || "";
+  $("manualFlagA").value = m.flagCodeA || "";
+  $("manualFlagB").value = m.flagCodeB || "";
+}
+async function saveManualMatch(){
+  if(!isAdmin) return alert("Solo admin.");
+  const id = $("manualMatchSelect")?.value;
+  if(!id) return alert("Selecciona un partido.");
+  try{
+    await updateDoc(doc(db,C.matches,id), {
+      teamA:$("manualTeamA").value.trim(),
+      teamB:$("manualTeamB").value.trim(),
+      flagCodeA:$("manualFlagA").value.trim(),
+      flagCodeB:$("manualFlagB").value.trim(),
+      updatedAt:serverTimestamp()
+    });
+    await refreshAfterWrite();
+    alert("Partido actualizado ✅");
+  }catch(e){
+    console.error(e);
+    alert("No se pudo guardar el partido: " + e.message);
+  }
+}
+
 async function seedSchedule(){
   if(!isAdmin) return alert("Solo admin.");
-  const ko = OFFICIAL_MATCHES.filter(m => Number(m.matchNumber) >= 73 && Number(m.matchNumber) <= 104);
-  for(const m of ko){
-    await setDoc(doc(db,C.matches,m.id), {...m, sourceId:m.id, updatedAt:serverTimestamp()}, {merge:true});
+  try{
+    const ko = OFFICIAL_MATCHES.filter(m => Number(m.matchNumber) >= 73 && Number(m.matchNumber) <= 104);
+    for(const m of ko){
+      await setDoc(doc(db,C.matches,m.id), {...m, sourceId:m.id, updatedAt:serverTimestamp()}, {merge:true});
+    }
+    await refreshAfterWrite();
+    alert(`Calendario base segunda fase cargado/actualizado: ${ko.length} partidos.
+Si ya tienes cruces definidos en Fase de Grupos, usa “Sincronizar desde fase de grupos”.`);
+  }catch(e){
+    console.error(e);
+    alert("No se pudo cargar el calendario. Revisa Firestore Rules ko_matches. Detalle: " + e.message);
   }
-  await refreshAfterWrite();
-  alert(`Calendario segunda fase cargado/actualizado: ${ko.length} partidos.`);
 }
 async function addParticipant(){
-  if(!isAdmin) return alert("Solo admin.");
+  if(!isAdmin) return alert("Solo admin. Primero inicia sesión.");
   const name = $("participantName").value.trim();
-  if(!name) return;
-  await addDoc(collection(db,C.participants), {name, createdAt:serverTimestamp()});
-  $("participantName").value = "";
-  await refreshAfterWrite();
+  if(!name) return alert("Escribe un nombre.");
+  try{
+    await addDoc(collection(db,C.participants), {name, createdAt:serverTimestamp()});
+    $("participantName").value = "";
+    await refreshAfterWrite();
+    alert("Participante agregado ✅");
+  }catch(e){
+    console.error(e);
+    alert("No se pudo agregar participante. Revisa Firestore Rules ko_participants. Detalle: " + e.message);
+  }
 }
 async function saveOnePrediction(pid,mid){
   if(!isAdmin) return alert("Solo admin.");
@@ -595,11 +863,18 @@ $("loginBtn")?.addEventListener("click", async () => {
 });
 $("logoutBtn")?.addEventListener("click",()=>signOut(auth));
 $("seedScheduleBtn")?.addEventListener("click",seedSchedule);
+$("seedScheduleBtn2")?.addEventListener("click",seedSchedule);
+$("syncFromGroupsBtn")?.addEventListener("click",syncFromGroupStage);
+$("syncFromGroupsBtn2")?.addEventListener("click",syncFromGroupStage);
 $("addParticipantBtn")?.addEventListener("click",addParticipant);
 $("saveAllPredictionsBtn")?.addEventListener("click",saveAllPredictions);
 $("bulkParticipant")?.addEventListener("change",()=>{rememberDrafts(); renderBulkPredictions();});
 $("matchSearch")?.addEventListener("input",renderMatches);
 $("phaseFilter")?.addEventListener("change",renderMatches);
+$("manualMatchSelect")?.addEventListener("change",fillManualEditor);
+$("saveManualMatchBtn")?.addEventListener("click",saveManualMatch);
+$("saveKoModalBtn")?.addEventListener("click",saveKoModal);
+$("closeKoModalBtn")?.addEventListener("click",closeKoEditor);
 $("upcomingBtn")?.addEventListener("click",()=>{showUpcomingOnly=!showUpcomingOnly; renderMatches();});
 $("downloadPredTemplateBtn")?.addEventListener("click",downloadTemplate);
 $("importPredCsvBtn")?.addEventListener("click",importCsv);
@@ -635,7 +910,8 @@ async function refreshAfterWrite(){
 }
 
 onAuthStateChanged(auth, user => {
-  isAdmin = !!user && user.email === ADMIN_EMAIL;
+  isAdmin = !!user && ADMIN_EMAILS.includes(user.email);
   document.body.classList.toggle("isAdmin",isAdmin);
+  renderAdminStatus(user);
 });
 loadAllData();
