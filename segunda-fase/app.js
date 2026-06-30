@@ -249,6 +249,10 @@ function renderClassificationSummary(){
   const pendingMatches = Math.max(0, totalMatches - playedMatches);
   const last = lastPlayedMatch();
   const rounds = koProgressRows();
+  const currentRound = rounds.find(r => r.played < r.total) || rounds[rounds.length - 1];
+  const currentPendingText = currentRound.pending > 0
+    ? `${currentRound.pending} pendientes`
+    : "ronda completada";
 
   box.innerHTML = `
     <div class="infoCard"><div class="muted">Participantes</div><strong>${participants.length}</strong><div>jugando segunda fase</div></div>
@@ -258,15 +262,11 @@ function renderClassificationSummary(){
       last ? `<div>${matchLabel(last)}</div><div class="lastResultScore">${last.realA} - ${last.realB}</div>` : `<div>Aún no hay resultados cargados.</div>`
     }</div>
     <div class="infoCard classificationProgressCard">
-      <div class="muted">Avance por etapa</div>
-      <div class="koProgressList">
-        ${rounds.map(r=>`
-          <div class="koProgressRow">
-            <div><strong>${esc(r.title)}</strong><span>${r.played} de ${r.total} jugados</span></div>
-            <div class="koProgressTrack"><i style="width:${r.pct}%"></i></div>
-          </div>
-        `).join("")}
-      </div>
+      <div class="muted">Ronda actual</div>
+      <strong>${esc(currentRound.title)}</strong>
+      <div>${currentRound.played} de ${currentRound.total} jugados</div>
+      <div class="muted">${currentPendingText}</div>
+      <div class="koProgressTrack"><i style="width:${currentRound.pct}%"></i></div>
     </div>
   `;
 }
