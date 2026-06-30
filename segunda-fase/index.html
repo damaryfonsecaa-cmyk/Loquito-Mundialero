@@ -35,7 +35,8 @@
       <h3>📌 Reglas de puntaje</h3>
       <div class="rulesGrid">
         <div><strong>3 puntos</strong><span>Resultado exacto considerando 90’ o 120’ si hay alargue.</span></div>
-        <div><strong>0 puntos</strong><span>Resultado no exacto o partido sin apuesta.</span></div>
+        <div><strong>1 punto</strong><span>Ganador correcto o empate correcto.</span></div>
+        <div><strong>0 puntos</strong><span>Pronóstico incorrecto o partido sin apuesta.</span></div>
         <div><strong>Cierre</strong><span>Hasta 15 minutos antes del inicio de cada partido.</span></div>
       </div>
     </div>
@@ -50,6 +51,7 @@
           <th>Participante</th>
           <th>Puntos</th>
           <th>Exactos</th>
+          <th>Ganador/empate</th>
           <th>Apuestas</th>
           <th>Faltantes</th>
         </tr>
@@ -134,6 +136,7 @@
         <button id="importPredCsvBtn" class="primary">Importar apuestas</button>
       </div>
       <p class="muted">Si el participante no existe, se crea automáticamente. Si la apuesta ya existe, se actualiza.</p>
+      <p class="muted">Para importar partidos ya cerrados, activa la carga extraordinaria en el panel “Cargar apuestas por participante”.</p>
     </div>
 
     
@@ -150,6 +153,15 @@
 <div class="adminOnly card">
       <h3>📝 Cargar apuestas por participante</h3>
       <p>Elige un participante, completa los resultados y guarda. Los partidos cerrados no permiten guardar apuesta.</p>
+      
+      <div class="lateOverrideBox adminOnly">
+        <label>
+          <input id="allowLateBetsToggle" type="checkbox"/>
+          Modo admin: permitir carga extraordinaria de apuestas cerradas
+        </label>
+        <p class="muted">Caso excepcional: como admin podrás guardar apuestas cerradas. Luego desactívalo para mantener la regla de cierre 15 minutos antes.</p>
+      </div>
+
       <div class="formline">
         <select id="bulkParticipant"></select>
         <button id="saveAllPredictionsBtn" class="primary">Guardar todas las apuestas abiertas</button>
@@ -249,7 +261,8 @@
           <th>Participante</th>
           <th>Puntos</th>
           <th>Exactos</th>
-          <th>% exactos</th>
+          <th>Ganador/empate</th>
+          <th>% acierto total</th>
           <th>Apuestas</th>
           <th>Faltantes</th>
         </tr>
@@ -277,7 +290,8 @@
       <h3>🎯 Puntaje</h3>
       <ul>
         <li>Resultado exacto: <strong>3 puntos</strong>.</li>
-        <li>Resultado no exacto: <strong>0 puntos</strong>.</li>
+        <li>Ganador correcto o empate correcto con marcador distinto: <strong>1 punto</strong>.</li>
+        <li>Pronóstico incorrecto: <strong>0 puntos</strong>.</li>
         <li>El resultado final se considera en los <strong>90 minutos</strong> o en los <strong>120 minutos</strong> si hay alargue.</li>
         <li>Si hay penales, el marcador válido será el existente antes de la tanda.</li>
       </ul>
@@ -359,6 +373,6 @@
 </main>
 
 <footer>Horarios en Chile · Fechas ajustadas a America/Santiago · Segunda Fase independiente.</footer>
-<script type="module" src="app.js?v=25"></script>
+<script type="module" src="app.js?v=30"></script>
 </body>
 </html>

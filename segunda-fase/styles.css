@@ -969,3 +969,69 @@ body.isAdmin th.adminOnly, body.isAdmin td.adminOnly{display:table-cell}
   .flagBracketMain{grid-template-columns:1fr;min-width:720px}
   .flagFinalCenter{order:-1}
 }
+
+.lateOverrideBox{
+  border:1px solid #f1d27a;
+  background:#fff8db;
+  border-radius:12px;
+  padding:12px;
+  margin:10px 0 14px;
+}
+.lateOverrideBox label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:900;
+  color:#8a5a00;
+}
+.lateOverrideBox input{
+  width:auto;
+  min-height:auto;
+}
+
+.hitPill.onePoint{
+  background:#edf4ff;
+  color:#0b5ed7;
+}
+
+
+/* Avance por etapa en clasificación segunda fase */
+.classificationProgressCard{
+  grid-column:span 2;
+}
+.koProgressList{
+  display:grid;
+  gap:8px;
+  margin-top:8px;
+}
+.koProgressRow{
+  display:grid;
+  grid-template-columns:160px 1fr;
+  gap:10px;
+  align-items:center;
+}
+.koProgressRow div:first-child{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.koProgressRow span{
+  color:var(--muted);
+  font-size:12px;
+}
+.koProgressTrack{
+  height:9px;
+  border-radius:999px;
+  background:#edf2f7;
+  overflow:hidden;
+}
+.koProgressTrack i{
+  display:block;
+  height:100%;
+  background:#2f7eea;
+  border-radius:999px;
+}
+@media(max-width:800px){
+  .classificationProgressCard{grid-column:auto}
+  .koProgressRow{grid-template-columns:1fr}
+}

@@ -83,6 +83,16 @@ function localDate(utc){
 function closeDate(utc){
   return utc ? new Date(new Date(utc).getTime()-15*60000).toLocaleString("es-CL", {timeZone:"America/Santiago",weekday:"short",day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}).replace(",", " ·") : "";
 }
+
+function allowLateBets(){
+  // Emergency override: admin can load closed bets.
+  // The checkbox is visual/control guidance, but admin is never blocked.
+  return isAdmin || !!$("allowLateBetsToggle")?.checked;
+}
+function canEditPredictionForMatch(m){
+  return isBetOpen(m) || allowLateBets();
+}
+
 function isBetOpen(m){
   if(!m?.utc) return true;
   return new Date() < new Date(new Date(m.utc).getTime()-15*60000);
@@ -99,20 +109,74 @@ function countdownText(utc){
 function money(v){
   return Number(v||0).toLocaleString("es-CL",{style:"currency",currency:"CLP",maximumFractionDigits:0});
 }
-function exactPoints(pred,match){
-  if(!match || match.realA === "" || match.realB === "" || match.realA == null || match.realB == null) return 0;
-  return Number(pred.goalsA) === Number(match.realA) && Number(pred.goalsB) === Number(match.realB) ? 3 : 0;
+
+function cleanScoreValue(v){
+  if(v === "" || v == null) return null;
+  const n = Number(String(v).trim());
+  return Number.isFinite(n) ? n : null;
 }
+function predictionScore(pred, side){
+  if(!pred) return null;
+  const keys = side === "A"
+    ? ["goalsA", "scoreA", "predA", "predictionA", "homeGoals", "teamAScore"]
+    : ["goalsB", "scoreB", "predB", "predictionB", "awayGoals", "teamBScore"];
+  for(const key of keys){
+    const value = cleanScoreValue(pred[key]);
+    if(value !== null) return value;
+  }
+  return null;
+}
+function matchScore(match, side){
+  if(!match) return null;
+  const keys = side === "A"
+    ? ["realA", "scoreA", "goalsA", "homeGoals", "teamAScore"]
+    : ["realB", "scoreB", "goalsB", "awayGoals", "teamBScore"];
+  for(const key of keys){
+    const value = cleanScoreValue(match[key]);
+    if(value !== null) return value;
+  }
+  return null;
+}
+function resultSign(a,b){
+  const na = cleanScoreValue(a);
+  const nb = cleanScoreValue(b);
+  if(na === null || nb === null) return null;
+  const diff = na - nb;
+  if(diff > 0) return "A";
+  if(diff < 0) return "B";
+  return "E";
+}
+function pointsFor(pred,match){
+  const predA = predictionScore(pred,"A");
+  const predB = predictionScore(pred,"B");
+  const realA = matchScore(match,"A");
+  const realB = matchScore(match,"B");
+  if(predA === null || predB === null || realA === null || realB === null) return 0;
+
+  if(predA === realA && predB === realB) return 3;
+
+  const predictedSign = resultSign(predA,predB);
+  const realSign = resultSign(realA,realB);
+  return predictedSign && predictedSign === realSign ? 1 : 0;
+}
+function exactPoints(pred,match){
+  return pointsFor(pred,match) === 3 ? 3 : 0;
+}
+function winnerOnlyPoints(pred,match){
+  return pointsFor(pred,match) === 1 ? 1 : 0;
+}
+
 function participantStats(pid){
   const ps = predictions.filter(p => p.participantId === pid);
-  let points = 0, exacts = 0;
+  let points = 0, exacts = 0, winners = 0;
   ps.forEach(p => {
     const m = matches.find(x => x.id === p.matchId);
-    const pts = exactPoints(p,m);
+    const pts = pointsFor(p,m);
     points += pts;
     if(pts === 3) exacts++;
+    if(pts === 1) winners++;
   });
-  return {count:ps.length, points, exacts, missing:Math.max(0,matches.length-ps.length)};
+  return {count:ps.length, points, exacts, winners, missing:Math.max(0,matches.length-ps.length)};
 }
 function sortedMatches(){
   return matches.slice().sort((a,b)=>(a.matchNumber||999)-(b.matchNumber||999));
@@ -139,12 +203,72 @@ function effectivePool(){
 
 function statsRows(){
   return participants.map(p => ({...p, ...participantStats(p.id)}))
-    .sort((a,b)=>b.points-a.points || b.exacts-a.exacts || a.name.localeCompare(b.name));
+    .sort((a,b)=>b.points-a.points || b.exacts-a.exacts || b.winners-a.winners || a.name.localeCompare(b.name));
 }
 function lastPlayedMatch(){
   return matches
     .filter(m => m.realA !== "" && m.realB !== "" && m.realA != null && m.realB != null)
     .sort((a,b)=>(b.matchNumber||0)-(a.matchNumber||0))[0];
+}
+
+function hasResult(m){
+  return m && m.realA !== "" && m.realB !== "" && m.realA != null && m.realB != null;
+}
+function roundProgress(title, nums){
+  const total = nums.length;
+  const played = nums.map(n => getMatchByNumber(n)).filter(hasResult).length;
+  const pending = Math.max(0, total - played);
+  const pct = total ? Math.round((played / total) * 100) : 0;
+  return {title, played, total, pending, pct};
+}
+function koProgressRows(){
+  return [
+    roundProgress("16avos", KO_ROUNDS.r32),
+    roundProgress("Octavos", KO_ROUNDS.r16),
+    roundProgress("Cuartos", KO_ROUNDS.qf),
+    roundProgress("Semifinales", KO_ROUNDS.sf),
+    roundProgress("Tercer lugar", KO_ROUNDS.third),
+    roundProgress("Final", KO_ROUNDS.final)
+  ];
+}
+function renderClassificationSummary(){
+  const box = $("summaryCards");
+  if(!box) return;
+
+  const totalPreds = predictions.length;
+  const exacts = predictions.filter(p => {
+    const m = matches.find(x=>x.id===p.matchId);
+    return pointsFor(p,m) === 3;
+  }).length;
+  const winnerPreds = predictions.filter(p => {
+    const m = matches.find(x=>x.id===p.matchId);
+    return pointsFor(p,m) === 1;
+  }).length;
+  const totalMatches = matches.length;
+  const playedMatches = matches.filter(hasResult).length;
+  const pendingMatches = Math.max(0, totalMatches - playedMatches);
+  const last = lastPlayedMatch();
+  const rounds = koProgressRows();
+
+  box.innerHTML = `
+    <div class="infoCard"><div class="muted">Participantes</div><strong>${participants.length}</strong><div>jugando segunda fase</div></div>
+    <div class="infoCard"><div class="muted">Apuestas cargadas</div><strong>${totalPreds}</strong><div>${exacts} exactos · ${winnerPreds} ganador/empate</div></div>
+    <div class="infoCard"><div class="muted">Partidos con resultado</div><strong>${playedMatches} de ${totalMatches}</strong><div>${pendingMatches} pendientes</div></div>
+    <div class="infoCard"><div class="muted">Último resultado cargado</div>${
+      last ? `<div>${matchLabel(last)}</div><div class="lastResultScore">${last.realA} - ${last.realB}</div>` : `<div>Aún no hay resultados cargados.</div>`
+    }</div>
+    <div class="infoCard classificationProgressCard">
+      <div class="muted">Avance por etapa</div>
+      <div class="koProgressList">
+        ${rounds.map(r=>`
+          <div class="koProgressRow">
+            <div><strong>${esc(r.title)}</strong><span>${r.played} de ${r.total} jugados</span></div>
+            <div class="koProgressTrack"><i style="width:${r.pct}%"></i></div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
 }
 function renderStats(){
   const lastBox = $("lastHitBox");
@@ -158,20 +282,29 @@ function renderStats(){
   const totalPreds = predictions.length;
   const exactPreds = predictions.filter(p => {
     const m = matches.find(x=>x.id===p.matchId);
-    return exactPoints(p,m) === 3;
+    return pointsFor(p,m) === 3;
   }).length;
-  const pct = totalPreds ? Math.round((exactPreds/totalPreds)*100) : 0;
+  const winnerPreds = predictions.filter(p => {
+    const m = matches.find(x=>x.id===p.matchId);
+    return pointsFor(p,m) === 1;
+  }).length;
+  const pct = totalPreds ? Math.round(((exactPreds + winnerPreds)/totalPreds)*100) : 0;
 
   statsBox.innerHTML = `
     <div class="statCard"><div class="muted">Partidos cargados</div><div class="bigNumber">${totalMatches}</div></div>
     <div class="statCard"><div class="muted">Partidos con resultado</div><div class="bigNumber">${played}</div></div>
     <div class="statCard"><div class="muted">Apuestas cargadas</div><div class="bigNumber">${totalPreds}</div></div>
-    <div class="statCard"><div class="muted">Exactos totales</div><div class="bigNumber">${exactPreds}</div><div class="muted">${pct}% de exactitud</div></div>
+    <div class="statCard"><div class="muted">Exactos totales</div><div class="bigNumber">${exactPreds}</div></div>
+    <div class="statCard"><div class="muted">Ganador/empate</div><div class="bigNumber">${winnerPreds}</div><div class="muted">${pct}% acierto total</div></div>
   `;
 
   const last = lastPlayedMatch();
   if(last){
-    const hits = predictions.filter(p => p.matchId === last.id && exactPoints(p,last) === 3)
+    const hits = predictions.filter(p => p.matchId === last.id && pointsFor(p,last) === 3)
+      .map(p => participants.find(x=>x.id===p.participantId)?.name)
+      .filter(Boolean)
+      .sort((a,b)=>a.localeCompare(b));
+    const onePointers = predictions.filter(p => p.matchId === last.id && pointsFor(p,last) === 1)
       .map(p => participants.find(x=>x.id===p.participantId)?.name)
       .filter(Boolean)
       .sort((a,b)=>a.localeCompare(b));
@@ -181,6 +314,8 @@ function renderStats(){
       <div class="lastResultScore">${last.realA} - ${last.realB}</div>
       <p><strong>Acertaron exacto:</strong> ${hits.length ? "" : "nadie todavía."}</p>
       <div class="hitList">${hits.map(n=>`<span class="hitPill">${esc(n)}</span>`).join("")}</div>
+      <p><strong>También sumaron 1 punto:</strong> ${onePointers.length ? "" : "nadie."}</p>
+      <div class="hitList">${onePointers.map(n=>`<span class="hitPill onePoint">${esc(n)}</span>`).join("")}</div>
     `;
   }else{
     lastBox.innerHTML = `<h3>🎯 Último partido jugado</h3><p class="muted">Aún no hay resultados cargados.</p>`;
@@ -191,21 +326,22 @@ function renderStats(){
     <div class="topRankingCard">
       <div class="muted">${["🥇 Líder","🥈 Segundo","🥉 Tercero"][i]}</div>
       <strong>${esc(p.name)}</strong>
-      <div>${p.points} puntos · ${p.exacts} exactos</div>
+      <div>${p.points} puntos · ${p.exacts} exactos · ${p.winners} ganador/empate</div>
     </div>
   `).join("");
 
   body.innerHTML = rows.map(p => {
-    const rate = p.count ? Math.round((p.exacts/p.count)*100) : 0;
+    const rate = p.count ? Math.round(((p.exacts + p.winners)/p.count)*100) : 0;
     return `<tr>
       <td>${esc(p.name)}</td>
       <td><strong>${p.points}</strong></td>
       <td>${p.exacts}</td>
+      <td>${p.winners}</td>
       <td>${rate}%</td>
       <td>${p.count}</td>
       <td>${p.missing}</td>
     </tr>`;
-  }).join("") || `<tr><td colspan="6" class="muted">Aún no hay participantes.</td></tr>`;
+  }).join("") || `<tr><td colspan="7" class="muted">Aún no hay participantes.</td></tr>`;
 }
 
 
@@ -385,33 +521,24 @@ function renderAll(){
 }
 
 function renderRanking(){
-  const rows = participants.map(p => ({...p, ...participantStats(p.id)})).sort((a,b)=>b.points-a.points || b.exacts-a.exacts || a.name.localeCompare(b.name));
+  const rows = participants.map(p => ({...p, ...participantStats(p.id)})).sort((a,b)=>b.points-a.points || b.exacts-a.exacts || b.winners-a.winners || a.name.localeCompare(b.name));
   $("rankingBody").innerHTML = rows.map((p,i)=>`
-    <tr><td>${i+1}</td><td>${esc(p.name)}</td><td><strong>${p.points}</strong></td><td>${p.exacts}</td><td>${p.count}</td><td>${p.missing}</td></tr>
-  `).join("") || `<tr><td colspan="6" class="muted">Aún no hay participantes.</td></tr>`;
+    <tr><td>${i+1}</td><td>${esc(p.name)}</td><td><strong>${p.points}</strong></td><td>${p.exacts}</td><td>${p.winners}</td><td>${p.count}</td><td>${p.missing}</td></tr>
+  `).join("") || `<tr><td colspan="7" class="muted">Aún no hay participantes.</td></tr>`;
 
   $("podium").innerHTML = rows.slice(0,3).map((p,i)=>`
     <div class="podiumCard">
       <div class="muted">${["🥇 1° lugar","🥈 2° lugar","🥉 3° lugar"][i]}</div>
       <strong>${esc(p.name)}</strong>
-      <div>${p.points} puntos · ${p.exacts} exactos</div>
+      <div>${p.points} puntos · ${p.exacts} exactos · ${p.winners} ganador/empate</div>
     </div>
   `).join("");
 
-  const totalPreds = predictions.length;
-  const exacts = predictions.filter(p => {
-    const m = matches.find(x=>x.id===p.matchId);
-    return exactPoints(p,m) === 3;
-  }).length;
-  $("summaryCards").innerHTML = `
-    <div class="infoCard"><div class="muted">Participantes</div><strong>${participants.length}</strong></div>
-    <div class="infoCard"><div class="muted">Apuestas cargadas</div><strong>${totalPreds}</strong></div>
-    <div class="infoCard"><div class="muted">Exactos</div><strong>${exacts}</strong></div>
-  `;
+  renderClassificationSummary();
 }
 function renderPrize(){
   const pool = effectivePool();
-  const rows = participants.map(p => ({...p, ...participantStats(p.id)})).sort((a,b)=>b.points-a.points || b.exacts-a.exacts || a.name.localeCompare(b.name));
+  const rows = participants.map(p => ({...p, ...participantStats(p.id)})).sort((a,b)=>b.points-a.points || b.exacts-a.exacts || b.winners-a.winners || a.name.localeCompare(b.name));
   const prizes = [
     ["🥇 1° lugar", prizeSettings.firstPct, rows[0]?.name || "Por definir"],
     ["🥈 2° lugar", prizeSettings.secondPct, rows[1]?.name || "Por definir"],
@@ -565,7 +692,7 @@ function renderBulkPredictions(){
     const p = existing[m.id] || {};
     const valA = predictionDrafts[draftKey(pid,m.id,"A")] ?? p.goalsA ?? "";
     const valB = predictionDrafts[draftKey(pid,m.id,"B")] ?? p.goalsB ?? "";
-    const open = isBetOpen(m);
+    const open = canEditPredictionForMatch(m);
     return `<tr>
       <td>${m.matchNumber}</td>
       <td><span class="chip">${esc(m.group||"")}</span></td>
@@ -604,7 +731,7 @@ function renderPredictions(){
   });
   $("predictionsBody").innerHTML = rows.map(p=>{
     const u=participants.find(x=>x.id===p.participantId), m=matches.find(x=>x.id===p.matchId);
-    return `<tr><td>${esc(u?.name||"")}</td><td>${m?matchLabel(m):""}</td><td>${m?localDate(m.utc):""}</td><td>${p.goalsA} - ${p.goalsB}</td><td><strong>${m?exactPoints(p,m):0}</strong></td></tr>`;
+    return `<tr><td>${esc(u?.name||"")}</td><td>${m?matchLabel(m):""}</td><td>${m?localDate(m.utc):""}</td><td>${p.goalsA} - ${p.goalsB}</td><td><strong>${m?pointsFor(p,m):0}</strong></td></tr>`;
   }).join("") || `<tr><td colspan="5" class="muted">No hay apuestas para este filtro.</td></tr>`;
 }
 
@@ -693,7 +820,7 @@ async function addParticipant(){
 async function saveOnePrediction(pid,mid){
   if(!isAdmin) return alert("Solo admin.");
   const m = matches.find(x=>x.id===mid);
-  if(!isBetOpen(m)) return alert("Este partido ya está cerrado para apuestas.");
+  if(!canEditPredictionForMatch(m)) return alert("Este partido ya está cerrado para apuestas.");
   const a = document.querySelector(`[data-bulk-a="${mid}"]`)?.value.trim();
   const b = document.querySelector(`[data-bulk-b="${mid}"]`)?.value.trim();
   if(a==="" || b==="") return alert("Completa ambos marcadores.");
@@ -708,7 +835,7 @@ async function saveAllPredictions(){
   if(!pid) return;
   let n=0;
   for(const m of sortedMatches()){
-    if(!isBetOpen(m)) continue;
+    if(!canEditPredictionForMatch(m)) continue;
     const a = document.querySelector(`[data-bulk-a="${m.id}"]`)?.value.trim();
     const b = document.querySelector(`[data-bulk-b="${m.id}"]`)?.value.trim();
     if(a==="" || b==="") continue;
@@ -750,7 +877,7 @@ async function importCsv(){
     const a = (r.goles_a ?? r.a ?? "").toString().trim();
     const b = (r.goles_b ?? r.b ?? "").toString().trim();
     const m = matches.find(x=>Number(x.matchNumber)===no);
-    if(!name || !m || a==="" || b==="" || !isBetOpen(m)){ skipped++; continue; }
+    if(!name || !m || a==="" || b==="" || !canEditPredictionForMatch(m)){ skipped++; continue; }
     const key = name.toLowerCase();
     if(!cache[key]) cache[key] = await getOrCreateParticipant(name);
     await setDoc(doc(db,C.predictions,`${cache[key]}_${m.id}`), {participantId:cache[key], matchId:m.id, goalsA:a, goalsB:b, updatedAt:serverTimestamp()});
@@ -790,7 +917,7 @@ async function importWhatsappText(){
   let ok = 0, skipped = 0;
   for(const r of parsed.rows){
     const m = matches.find(x=>Number(x.matchNumber) === Number(r.matchNumber));
-    if(!m || !isBetOpen(m)){ skipped++; continue; }
+    if(!m || !canEditPredictionForMatch(m)){ skipped++; continue; }
     await setDoc(doc(db,C.predictions,`${pid}_${m.id}`), {
       participantId:pid, matchId:m.id, goalsA:r.goalsA, goalsB:r.goalsB, updatedAt:serverTimestamp()
     });
@@ -813,7 +940,7 @@ function downloadPredictionsCsv(){
   const lines = ["participante;partido_numero;fase;equipo_a;equipo_b;goles_a;goles_b;puntos"];
   predictions.forEach(p => {
     const u=participants.find(x=>x.id===p.participantId), m=matches.find(x=>x.id===p.matchId);
-    if(m) lines.push(`${u?.name||""};${m.matchNumber};${m.group};${m.teamA};${m.teamB};${p.goalsA};${p.goalsB};${exactPoints(p,m)}`);
+    if(m) lines.push(`${u?.name||""};${m.matchNumber};${m.group};${m.teamA};${m.teamB};${p.goalsA};${p.goalsB};${pointsFor(p,m)}`);
   });
   downloadText("apuestas_segunda_fase.csv", "\ufeff"+lines.join("\n"), "text/csv;charset=utf-8");
 }
@@ -869,6 +996,7 @@ $("syncFromGroupsBtn2")?.addEventListener("click",syncFromGroupStage);
 $("addParticipantBtn")?.addEventListener("click",addParticipant);
 $("saveAllPredictionsBtn")?.addEventListener("click",saveAllPredictions);
 $("bulkParticipant")?.addEventListener("change",()=>{rememberDrafts(); renderBulkPredictions();});
+$("allowLateBetsToggle")?.addEventListener("change",renderBulkPredictions);
 $("matchSearch")?.addEventListener("input",renderMatches);
 $("phaseFilter")?.addEventListener("change",renderMatches);
 $("manualMatchSelect")?.addEventListener("change",fillManualEditor);
